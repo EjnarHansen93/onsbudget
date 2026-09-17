@@ -1,0 +1,13 @@
+{
+  "name": "OnsBudget",
+  "short_name": "OnsBudget",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#7B57FF",
+  "theme_color": "#7B57FF",
+  "icons": [
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
