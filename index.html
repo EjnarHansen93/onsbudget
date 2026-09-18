@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>OnsBudget</title>
+<meta name="theme-color" content="#7B57FF" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OnsBudget" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="apple-touch-icon" href="./icon-512.png" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237B57FF'/%3E%3Cpath d='M13 31 L32 14 L51 31' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M17 28 V50 H47 V28' fill='none' stroke='white' stroke-width='3.4' stroke-linejoin='round'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-size='19' font-weight='800' fill='white' font-family='Arial'%3E%E2%82%AC%3C/text%3E%3C/svg%3E" />
+
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+  :root{
+    --purple:#7B57FF; --purple-d:#6A45F5; --mint:#5FD9C0; --mint-d:#47C9AE;
+    --bg:#F1F1F6; --card:#FFFFFF; --ink:#1B1B24; --muted:#8A8A98;
+    --green:#12924E; --red:#E5484D; --line:#EDEDF2;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:#dcdce4;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  input{font-family:inherit;}
+  .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg) url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22380%22%20height%3D%22520%22%20viewBox%3D%220%200%20380%20520%22%3E%3Cg%20opacity%3D%220.5%22%3E%3Cg%20transform%3D%22translate%2834%2C40%29%20scale%281.5%29%20rotate%28-12%2012%2012%29%22%20stroke%3D%22%2379D6C1%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%221.5%22%20y%3D%226%22%20width%3D%2221%22%20height%3D%2212%22%20rx%3D%222%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28150%2C26%29%20scale%281.4%29%20rotate%288%2012%2012%29%22%20stroke%3D%22%23A6C4EE%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2011%2012%203l9%208%22%2F%3E%3Cpath%20d%3D%22M5%2010v10h14V10%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28300%2C34%29%20scale%281.4%29%20rotate%2810%2012%2012%29%22%20stroke%3D%22%23EFD289%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cellipse%20cx%3D%2212%22%20cy%3D%226%22%20rx%3D%227%22%20ry%3D%222.6%22%2F%3E%3Cpath%20d%3D%22M5%206v6c0%201.5%203.1%202.6%207%202.6s7-1.1%207-2.6V6%22%2F%3E%3Cpath%20d%3D%22M5%2012v6c0%201.5%203.1%202.6%207%202.6s7-1.1%207-2.6v-6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2844%2C150%29%20scale%281.5%29%20rotate%28-6%2012%2012%29%22%20stroke%3D%22%23B4A4F2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2220%22%20r%3D%221.4%22%2F%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2220%22%20r%3D%221.4%22%2F%3E%3Cpath%20d%3D%22M2%203h3l2.2%2011.2a1.6%201.6%200%200%200%201.6%201.3h8.3a1.6%201.6%200%200%200%201.6-1.3L21%207H6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28250%2C140%29%20scale%281.5%29%20rotate%28-8%2012%2012%29%22%20stroke%3D%22%23A6C4EE%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%2013l1.6-4.6A2%202%200%200%201%208.5%207h7a2%202%200%200%201%201.9%201.4L19%2013%22%2F%3E%3Cpath%20d%3D%22M4%2013h16v4H4z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%2217.5%22%20r%3D%221.2%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%2217.5%22%20r%3D%221.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28330%2C150%29%20scale%281.35%29%20rotate%2812%2012%2012%29%22%20stroke%3D%22%23C4C4D2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%202h12v20l-3-2-3%202-3-2-3%202z%22%2F%3E%3Cpath%20d%3D%22M9%207h6%22%2F%3E%3Cpath%20d%3D%22M9%2011h6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28150%2C160%29%20scale%281.35%29%20rotate%280%2012%2012%29%22%20stroke%3D%22%2379D6C1%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228.5%22%2F%3E%3Cpath%20d%3D%22M15%208.6A4%204%200%201%200%2015%2015.4%22%2F%3E%3Cpath%20d%3D%22M7.5%2011h6%22%2F%3E%3Cpath%20d%3D%22M7.5%2013.3h5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2860%2C250%29%20scale%281.4%29%20rotate%28-10%2012%2012%29%22%20stroke%3D%22%23F1A9BD%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%2020s-7-4.6-7-10a4%204%200%200%201%207-2.4A4%204%200%200%201%2019%2010c0%205.4-7%2010-7%2010z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28190%2C255%29%20scale%281.4%29%20rotate%286%2012%2012%29%22%20stroke%3D%22%23B4A4F2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%222.5%22%20y%3D%225%22%20width%3D%2219%22%20height%3D%2214%22%20rx%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M2.5%209.5h19%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28300%2C250%29%20scale%281.0%29%20rotate%280%2012%2012%29%22%20stroke%3D%22%23C4C4D2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%207v10M7%2012h10%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28330%2C340%29%20scale%281.4%29%20rotate%288%2012%2012%29%22%20stroke%3D%22%2379D6C1%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2220%22%20r%3D%221.4%22%2F%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2220%22%20r%3D%221.4%22%2F%3E%3Cpath%20d%3D%22M2%203h3l2.2%2011.2a1.6%201.6%200%200%200%201.6%201.3h8.3a1.6%201.6%200%200%200%201.6-1.3L21%207H6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2848%2C350%29%20scale%281.3%29%20rotate%28-8%2012%2012%29%22%20stroke%3D%22%23EFD289%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cellipse%20cx%3D%2212%22%20cy%3D%226%22%20rx%3D%227%22%20ry%3D%222.6%22%2F%3E%3Cpath%20d%3D%22M5%206v6c0%201.5%203.1%202.6%207%202.6s7-1.1%207-2.6V6%22%2F%3E%3Cpath%20d%3D%22M5%2012v6c0%201.5%203.1%202.6%207%202.6s7-1.1%207-2.6v-6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28150%2C360%29%20scale%281.5%29%20rotate%2810%2012%2012%29%22%20stroke%3D%22%23F1A9BD%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%221.5%22%20y%3D%226%22%20width%3D%2221%22%20height%3D%2212%22%20rx%3D%222%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%223.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28255%2C360%29%20scale%281.1%29%20rotate%280%2012%2012%29%22%20stroke%3D%22%23C4C4D2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%227.5%22%20r%3D%222.4%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%2216.5%22%20r%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M6.5%2017.5%2017.5%206.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2840%2C450%29%20scale%281.35%29%20rotate%28-6%2012%2012%29%22%20stroke%3D%22%23C4C4D2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2011%2012%203l9%208%22%2F%3E%3Cpath%20d%3D%22M5%2010v10h14V10%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28180%2C455%29%20scale%281.4%29%20rotate%284%2012%2012%29%22%20stroke%3D%22%23B4A4F2%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%2013l1.6-4.6A2%202%200%200%201%208.5%207h7a2%202%200%200%201%201.9%201.4L19%2013%22%2F%3E%3Cpath%20d%3D%22M4%2013h16v4H4z%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%2217.5%22%20r%3D%221.2%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%2217.5%22%20r%3D%221.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28320%2C450%29%20scale%281.3%29%20rotate%280%2012%2012%29%22%20stroke%3D%22%23EFD289%22%20stroke-width%3D%221.7%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%228.5%22%2F%3E%3Cpath%20d%3D%22M15%208.6A4%204%200%201%200%2015%2015.4%22%2F%3E%3Cpath%20d%3D%22M7.5%2011h6%22%2F%3E%3Cpath%20d%3D%22M7.5%2013.3h5%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22110%22%20cy%3D%2290%22%20r%3D%222.6%22%20fill%3D%22%23F1A9BD%22%2F%3E%3Ccircle%20cx%3D%22230%22%20cy%3D%2280%22%20r%3D%222.6%22%20fill%3D%22%2379D6C1%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22110%22%20r%3D%222.6%22%20fill%3D%22%23B4A4F2%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%22210%22%20r%3D%222.6%22%20fill%3D%22%23EFD289%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%222.6%22%20fill%3D%22%23A6C4EE%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22300%22%20r%3D%222.6%22%20fill%3D%22%23C4C4D2%22%2F%3E%3Ccircle%20cx%3D%22360%22%20cy%3D%22290%22%20r%3D%222.6%22%20fill%3D%22%23F1A9BD%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22400%22%20r%3D%222.6%22%20fill%3D%22%2379D6C1%22%2F%3E%3Ccircle%20cx%3D%22250%22%20cy%3D%22320%22%20r%3D%222.6%22%20fill%3D%22%23EFD289%22%2F%3E%3Ccircle%20cx%3D%22110%22%20cy%3D%22470%22%20r%3D%222.6%22%20fill%3D%22%23A6C4EE%22%2F%3E%3Ccircle%20cx%3D%22360%22%20cy%3D%22500%22%20r%3D%222.6%22%20fill%3D%22%23B4A4F2%22%2F%3E%3Ccircle%20cx%3D%22200%22%20cy%3D%22120%22%20r%3D%222.6%22%20fill%3D%22%23C4C4D2%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");background-size:200px auto;background-repeat:repeat;position:relative;overflow-x:hidden;padding-bottom:96px;}
+  .safe-top{padding-top:env(safe-area-inset-top);}
+
+  /* Header */
+  .hdr{background:var(--purple);color:#fff;border-radius:0 0 30px 30px;padding:calc(env(safe-area-inset-top) + 14px) 20px 26px;position:relative;}
+  .hdr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .hdr-title{font-size:23px;font-weight:800;text-align:center;line-height:1.15;}
+  .hdr-sub{font-size:16px;font-weight:500;text-align:center;opacity:.95;text-transform:lowercase;margin-top:6px;}
+  .icon-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;}
+  .icon-btn:active{background:rgba(255,255,255,.15);}
+
+  /* Balance pill */
+  .balance{background:#fff;margin:12px auto 0;width:max-content;min-width:230px;text-align:center;padding:16px 34px;border-radius:40px;box-shadow:0 8px 24px rgba(60,50,120,.12);font-size:40px;font-weight:800;letter-spacing:-.5px;}
+  .balance.pos{color:var(--green);} .balance.neg{color:var(--red);}
+
+  .wrap{padding:18px 16px 0;}
+  .cards2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  .stat{background:#fff;border-radius:20px;padding:16px 12px 14px;text-align:center;position:relative;box-shadow:0 4px 14px rgba(60,50,120,.05);}
+  .stat .lbl{font-size:13px;color:var(--muted);letter-spacing:.6px;margin-top:8px;font-weight:600;}
+  .stat .val{font-size:18px;font-weight:800;margin-top:2px;}
+  .stat .chev{position:absolute;top:12px;right:12px;color:#c9c9d4;}
+
+  .panel{background:#fff;border-radius:20px;margin-top:16px;padding:6px 0 4px;box-shadow:0 4px 14px rgba(60,50,120,.05);overflow:hidden;}
+  .panel-h{display:flex;align-items:baseline;justify-content:space-between;padding:14px 18px 8px;}
+  .panel-h h3{margin:0;font-size:20px;font-weight:800;}
+  .panel-h .count{color:var(--muted);font-weight:700;font-size:15px;}
+
+  .tx{display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--line);}
+  .tx:first-child{border-top:none;}
+  .tx:active{background:#f7f7fb;}
+  .tx .ic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;}
+  .tx .mid{flex:1;min-width:0;text-align:left;}
+  .tx .cat{font-weight:800;font-size:15.5px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tx .desc{color:var(--muted);font-size:13.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tx .right{text-align:right;flex:0 0 auto;}
+  .tx .amt{font-weight:800;font-size:15.5px;}
+  .tx .amt.in{color:var(--green);} .tx .amt.out{color:var(--red);}
+  .tx .dt{color:var(--muted);font-size:12.5px;margin-top:2px;}
+
+  .empty{padding:34px 20px;text-align:center;color:var(--muted);}
+
+  .note{background:#fff;border-radius:16px;padding:16px 18px;margin-top:14px;box-shadow:0 4px 14px rgba(60,50,120,.05);}
+  .note h4{margin:0 0 6px;font-size:17px;} .note p{margin:0;color:#5b5b68;font-size:14.5px;line-height:1.5;}
+
+  /* Bottom nav + FAB */
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:40;}
+  .nav-inner{max-width:480px;margin:0 auto;background:#fff;border-top:1px solid #e9e9f0;display:flex;justify-content:space-between;align-items:flex-end;padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);}
+  .nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;color:#b6b6c2;font-size:11px;font-weight:700;flex:1;min-width:0;padding-top:4px;white-space:nowrap;}
+  .nav-btn.on{color:var(--ink);}
+  .nav-spacer{flex:1;}
+  .fab{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 18px);width:62px;height:62px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(123,87,255,.45);}
+  .fab:active{transform:translateX(-50%) scale(.94);}
+
+  /* Sheet / modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,18,40,.35);z-index:60;display:flex;flex-direction:column;}
+  .sheet{background:var(--bg);margin-top:auto;min-height:70vh;max-height:100vh;border-radius:0;display:flex;flex-direction:column;animation:up .22s ease;}
+  .sheet.full{min-height:100vh;}
+  @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .sheet-hdr{background:var(--purple);color:#fff;border-radius:0 0 30px 30px;padding:calc(env(safe-area-inset-top) + 14px) 18px 22px;}
+  .sheet-hdr .top{display:flex;align-items:center;justify-content:space-between;}
+  .sheet-hdr h2{margin:0;font-size:22px;font-weight:800;flex:1;text-align:center;}
+  .seg{display:flex;gap:10px;margin-top:18px;}
+  .seg button{flex:1;padding:12px 0;border-radius:30px;font-weight:800;font-size:16px;border:1.5px solid rgba(255,255,255,.6);color:#fff;}
+  .seg button.on{background:#fff;color:var(--purple);border-color:#fff;}
+
+  .sheet-body{padding:16px;overflow-y:auto;flex:1;}
+  .amount-box{background:#fff;border-radius:22px;padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(60,50,120,.05);}
+  .amount-box .eur{font-size:34px;font-weight:800;}
+  .amount-inp{border:none;outline:none;font-size:40px;font-weight:800;width:100%;text-align:center;background:transparent;}
+  .amount-box.err .eur{color:var(--red);} .amount-inp::placeholder{color:#cfcfd8;}
+  .helper{color:var(--red);text-align:center;margin:8px 0 2px;font-weight:600;font-size:14px;}
+
+  .row{background:#fff;border-radius:16px;margin-top:12px;width:100%;text-align:left;display:flex;align-items:center;gap:14px;padding:14px 16px;box-shadow:0 4px 14px rgba(60,50,120,.04);}
+  .row:active{background:#f7f7fb;}
+  .row .ic{width:44px;height:44px;border-radius:50%;background:#f0f0f5;display:flex;align-items:center;justify-content:center;color:#3a3a46;flex:0 0 auto;}
+  .row .ic.filled{color:#fff;}
+  .row .txt{flex:1;font-size:17px;font-weight:600;text-align:left;}
+  .row .txt.ph{color:#b3b3bf;}
+  .row .chev{color:#c4c4d0;}
+  .row input.desc{border:none;outline:none;font-size:17px;width:100%;background:transparent;}
+  .field-card{background:#fff;border-radius:18px;margin-top:14px;box-shadow:0 4px 14px rgba(60,50,120,.05);overflow:hidden;}
+  .field-card .row{margin-top:0;border-radius:0;box-shadow:none;border-bottom:1px solid var(--line);}
+  .field-card .row:last-child{border-bottom:none;}
+
+  .save-bar{padding:16px 0 0;display:flex;gap:12px;align-items:center;}
+  .save-x{width:56px;height:56px;border-radius:50%;background:#ececf2;display:flex;align-items:center;justify-content:center;color:#3a3a46;flex:0 0 auto;}
+  .save-btn{flex:1;height:56px;border-radius:30px;background:var(--mint);color:#0d3b31;font-size:18px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;}
+  .save-btn:active{background:var(--mint-d);}
+  .del-btn{width:100%;text-align:center;color:var(--red);font-weight:700;padding:14px;font-size:15.5px;}
+
+  /* Category grid */
+  .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 4px;padding:6px 6px 20px;}
+  .cat{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:16px;}
+  .cat:active{background:#f2f2f8;}
+  .cat .circle{width:66px;height:66px;border-radius:50%;background:#f4f3fa;border:1.5px solid #e5e2f0;display:flex;align-items:center;justify-content:center;color:#333;}
+  .cat .name{font-size:14px;text-align:center;line-height:1.15;color:#2b2b36;}
+  .cat.sel .circle{border-color:var(--purple);box-shadow:0 0 0 3px rgba(123,87,255,.22);}
+  .cat.sel .name{color:var(--purple);font-weight:700;}
+
+  /* Calendar */
+  .cal{background:#fff;border-radius:22px;padding:18px 16px;box-shadow:0 4px 14px rgba(60,50,120,.05);}
+  .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-top .m{font-size:19px;font-weight:700;text-transform:lowercase;}
+  .cal-top .navs{display:flex;gap:14px;color:var(--red);}
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);color:var(--muted);font-size:12px;font-weight:700;text-align:center;margin-bottom:6px;}
+  .days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:50%;}
+  .day.sel{background:var(--red);color:#fff;font-weight:700;}
+  .day:active{background:#f0f0f5;}
+  .day.sel:active{background:var(--red);}
+
+  /* Overzicht */
+  .toggle2{display:flex;gap:0;background:#e9e9f1;border-radius:30px;padding:4px;margin:0 0 4px;}
+  .toggle2 button{flex:1;padding:9px 0;border-radius:26px;font-weight:800;font-size:14.5px;color:#7a7a88;}
+  .toggle2 button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0 6px;}
+  .legend{margin-top:10px;width:100%;}
+  .leg{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line);}
+  .leg:first-child{border-top:none;}
+  .leg:active{background:#f7f7fb;}
+  .leg .dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;}
+  .leg .nm{flex:1;font-weight:700;font-size:15.5px;}
+  .leg .pc{color:var(--muted);font-size:13px;font-weight:600;margin-right:8px;}
+  .leg .vv{font-weight:800;font-size:15px;}
+
+  /* Profielen */
+  .pf{background:#fff;border-radius:16px;margin-top:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(60,50,120,.04);}
+  .pf .av{width:46px;height:46px;border-radius:14px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex:0 0 auto;}
+  .pf input{border:none;outline:none;font-size:17px;font-weight:700;flex:1;background:transparent;}
+  .pf .pick{color:var(--mint-d);font-weight:800;font-size:14px;}
+  .pf.active{outline:2px solid var(--mint);}
+
+  /* Gate */
+  .gate{min-height:100vh;background:var(--purple);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;color:#fff;text-align:center;}
+  .gate .logo{width:96px;height:96px;}
+  .gate h1{margin:0;font-size:26px;font-weight:800;}
+  .gate input{width:100%;max-width:280px;padding:15px 18px;border-radius:16px;border:none;font-size:18px;text-align:center;}
+  .gate button{width:100%;max-width:280px;padding:15px;border-radius:16px;background:var(--mint);color:#0d3b31;font-weight:800;font-size:17px;}
+  .gate .err{color:#ffd7d7;font-weight:600;min-height:20px;}
+
+  .logo-hd{display:flex;align-items:center;gap:10px;}
+  .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:#1b1b24;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:80;box-shadow:0 6px 18px rgba(0,0,0,.25);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/plain" id="app-src">
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+/* ============ CONFIG ============ */
+const SUPA_URL = "https://lkzxkovpswyllzunrqks.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrenhrb3Zwc3d5bGx6dW5ycWtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3Nzc2NjgsImV4cCI6MjEwMTM1MzY2OH0.u8Oav9kcO5d9G9q3fi8LmSyDTIqJ6B8kgJvKeH_hVt0";
+const ACCESS_CODE = "samen"; // <-- pas dit aan naar jullie eigen code
+
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+/* ============ ICONS ============ */
+const ICONS = {
+  house:'<path d="M12 3 3 11h2.2v8.5h13.6V11H21z"/>',
+  coins:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+  euro:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.6A4 4 0 1 0 15.5 15.4"/><path d="M7.5 11h5.5"/><path d="M7.5 13.4h4.6"/>',
+  exchange:'<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/>',
+  zap:'<path d="M13 2 4 14h6l-1 8 10-13h-6z"/>',
+  droplet:'<path d="M12 2.5S5 9.6 5 14.5a7 7 0 0 0 14 0C19 9.6 12 2.5 12 2.5z"/>',
+  umbrella:'<path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9-9z"/><path d="M12 12v6.5a2.5 2.5 0 0 1-5 0"/>',
+  car:'<path d="M5 13l1.6-4.6A2 2 0 0 1 8.5 7h7a2 2 0 0 1 1.9 1.4L19 13"/><path d="M4 13h16v4H4z"/><circle cx="7.5" cy="17.5" r="1.3"/><circle cx="16.5" cy="17.5" r="1.3"/>',
+  receipt:'<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6"/><path d="M9 11h6"/>',
+  cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.2 11.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.3L21 7H6"/>',
+  utensils:'<path d="M5 2v7a2 2 0 0 0 4 0V2"/><path d="M7 9v13"/><path d="M17 2c-1.7 0-3 2-3 5v5h3"/><path d="M17 12v10"/>',
+  bath:'<path d="M4 12h16v3.5a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 15.5z"/><path d="M6 12V6.5a2 2 0 0 1 4 0"/><path d="M7 19l-1.2 2M18 19l1.2 2"/>',
+  hanger:'<path d="M12 5a2 2 0 1 1 2 2c-1 0-2 .7-2 1.8V10L4 15.5V18h16v-2.5L12 10"/>',
+  medic:'<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2"/><path d="M12 11v5M9.5 13.5h5"/>',
+  play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.3l6 3.7-6 3.7z"/>',
+  smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14.5s1.5 2 4 2 4-2 4-2"/><path d="M9 9.5h.01M15 9.5h.01"/>',
+  kids:'<circle cx="8" cy="6" r="2.5"/><circle cx="16" cy="6" r="2.5"/><path d="M3.5 21v-3a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v3"/><path d="M13.5 21v-3a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v3"/>',
+  paw:'<circle cx="7" cy="10" r="1.7"/><circle cx="12" cy="8" r="1.7"/><circle cx="17" cy="10" r="1.7"/><path d="M12 12.5c-2.6 0-4.6 2-4.6 4.1A2.4 2.4 0 0 0 9.8 19c1.1 0 1.3-.6 2.2-.6s1.1.6 2.2.6a2.4 2.4 0 0 0 2.4-2.4c0-2.1-2-4.1-4.6-4.1z"/>',
+  clip:'<path d="M20 11l-8.6 8.6a4 4 0 0 1-5.7-5.7L14 5.6a2.7 2.7 0 0 1 3.8 3.8L9.3 17.9a1.35 1.35 0 0 1-1.9-1.9L15.5 8"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  cleft:'<path d="M15 5l-7 7 7 7"/>',
+  cright:'<path d="M9 5l7 7-7 7"/>',
+  aleft:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  aright:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  cal:'<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+  trash:'<path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6.5 7l1 12.5a1 1 0 0 0 1 .95h7a1 1 0 0 0 1-.95L18 7"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  chart:'<path d="M5 20V11M12 20V4M19 20v-6"/><path d="M3.5 20h17"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M18 14a5 5 0 0 1 3 4.6V20"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14-4M4 6v3h3"/><path d="M4 13a8 8 0 0 0 14 4M20 18v-3h-3"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  piggy:'<path d="M4.6 13.2c0-2.7 2.6-4.8 6-4.8 .9 0 1.8 .1 2.6 .4l1.8-1.2-.5 2.1c1.3 .9 2.1 2.1 2.1 3.5 0 .5-.1 1-.3 1.4h1.6v2.2h-1.9c-.3 .3-.6 .6-1 .8V19h-2.2l-.4-1.1c-.5 .1-1 .2-1.5 .2s-1-.1-1.5-.2L8.9 19H6.7v-1.4a4.6 4.6 0 0 1-2.1-4.4z"/><circle cx="14.4" cy="12" r=".7"/><path d="M4.7 12.3H3.3"/>',
+};
+function Icon({name, size=24, sw=2, className, style}){
+  return <svg className={className} style={style} width={size} height={size} viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"
+    dangerouslySetInnerHTML={{__html: ICONS[name]||''}} />;
+}
+
+/* ============ CATEGORIES ============ */
+const CATS = {
+  in: [
+    {key:'werk', label:'Werk', icon:'coins', color:'#F84C8E'},
+    {key:'uitkering', label:'Uitkering', icon:'euro', color:'#2E9BE0'},
+    {key:'terugbetaling', label:'Terugbetaling', icon:'exchange', color:'#12B886'},
+    {key:'andere_in', label:'Andere', icon:'clip', color:'#868E96'},
+  ],
+  uit: [
+    {key:'woning', label:'Woning', icon:'house', color:'#5C7CFA'},
+    {key:'energie', label:'Energie', icon:'zap', color:'#F59F00'},
+    {key:'water', label:'Water', icon:'droplet', color:'#22B8CF'},
+    {key:'verzekeringen', label:'Verzekeringen', icon:'umbrella', color:'#9775FA'},
+    {key:'vervoer', label:'Vervoer', icon:'car', color:'#4263EB'},
+    {key:'belastingen', label:'Belastingen', icon:'receipt', color:'#E8590C'},
+    {key:'boodschappen', label:'Boodschappen', icon:'cart', color:'#37B24D'},
+    {key:'restaurant', label:'Restaurant / Take-away', icon:'utensils', color:'#FD7E14'},
+    {key:'verzorging', label:'Verzorging', icon:'bath', color:'#F06595'},
+    {key:'kledij', label:'Kledij', icon:'hanger', color:'#AE3EC9'},
+    {key:'gezondheid', label:'Gezondheid', icon:'medic', color:'#FA5252'},
+    {key:'media', label:'Media', icon:'play', color:'#20C997'},
+    {key:'vrije_tijd', label:'Vrije tijd', icon:'smile', color:'#FAB005'},
+    {key:'kinderen', label:'Kinderen', icon:'kids', color:'#4DABF7'},
+    {key:'huisdieren', label:'Huisdieren', icon:'paw', color:'#82C91E'},
+    {key:'andere_uit', label:'Andere', icon:'clip', color:'#868E96'},
+  ],
+};
+const CAT_BY_KEY = {};
+[...CATS.in, ...CATS.uit].forEach(c=>{ CAT_BY_KEY[c.key]=c; });
+const SPAAR_CAT = {key:'sparen', label:'Sparen', icon:'piggy', color:'#7B57FF'};
+CAT_BY_KEY['sparen']=SPAAR_CAT;
+function catOf(key){ return CAT_BY_KEY[key] || {key, label:key, icon:'clip', color:'#868E96'}; }
+
+/* ============ HELPERS ============ */
+const MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+const DOW = ['MA','DI','WO','DO','VR','ZA','ZO'];
+function fmtNum(n){ return Math.abs(n).toLocaleString('nl-BE',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtSigned(n){ const s = n>0?'+ ':(n<0?'- ':''); return '€ '+s+fmtNum(n); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function toDateStr(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function fromDateStr(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function ddmmyy(s){ const [y,m,d]=s.split('-'); return `${d}/${m}/${y.slice(2)}`; }
+function monthKey(y,m){ return `${y}-${pad(m+1)}`; }
+function monthLabel(y,m){ return `${MONTHS[m]} ${y}`; }
+
+/* ============ DONUTS ============ */
+function MiniDonut({frac, color}){
+  const r=27, c=2*Math.PI*r, f=Math.max(0,Math.min(1,frac||0));
+  return <svg width="76" height="76" viewBox="0 0 76 76">
+    <circle cx="38" cy="38" r={r} fill="none" stroke="#EDEDF2" strokeWidth="9"/>
+    {f>0 && <circle cx="38" cy="38" r={r} fill="none" stroke={color} strokeWidth="9"
+      strokeLinecap="round" strokeDasharray={`${c*f} ${c}`} strokeDashoffset="0"
+      transform="rotate(-90 38 38)"/>}
+  </svg>;
+}
+function BigDonut({items, total}){
+  const r=52, c=2*Math.PI*r; let acc=0;
+  return <svg width="168" height="168" viewBox="0 0 168 168">
+    <circle cx="84" cy="84" r={r} fill="none" stroke="#EDEDF2" strokeWidth="26"/>
+    {total>0 && items.map((it,i)=>{
+      const len=c*(it.value/total);
+      const el=<circle key={i} cx="84" cy="84" r={r} fill="none" stroke={it.color} strokeWidth="26"
+        strokeDasharray={`${len} ${c-len}`} strokeDashoffset={-acc} transform="rotate(-90 84 84)"/>;
+      acc+=len; return el;
+    })}
+  </svg>;
+}
+
+/* ============ GATE ============ */
+function Gate({onOk}){
+  const [v,setV]=useState(""); const [err,setErr]=useState("");
+  function submit(){ if(v.trim().toLowerCase()===ACCESS_CODE.toLowerCase()){ localStorage.setItem('budget_ok','1'); onOk(); } else { setErr("Foute code"); } }
+  return <div className="gate">
+    <svg className="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#fff" opacity="0.14"/><path d="M13 31 L32 14 L51 31" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/><path d="M17 28 V50 H47 V28" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinejoin="round"/><text x="32" y="45" textAnchor="middle" fontSize="19" fontWeight="800" fill="#fff">€</text></svg>
+    <h1>OnsBudget</h1>
+    <input type="password" inputMode="text" placeholder="Toegangscode" value={v}
+      onChange={e=>{setV(e.target.value);setErr("");}} onKeyDown={e=>{if(e.key==='Enter')submit();}} />
+    <div className="err">{err}</div>
+    <button onClick={submit}>Openen</button>
+  </div>;
+}
+
+/* ============ CATEGORY PICKER ============ */
+function CategoryPicker({type, current, onPick, onClose}){
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet full" onClick={e=>e.stopPropagation()}>
+      <div className="sheet-hdr">
+        <div className="top">
+          <div style={{width:40}}/>
+          <h2>Kies categorie</h2>
+          <button className="icon-btn" onClick={onClose}><Icon name="x"/></button>
+        </div>
+        <div style={{textAlign:'center',marginTop:4,opacity:.95,fontWeight:600}}>{type==='in'?'IN':'UIT'}</div>
+      </div>
+      <div className="sheet-body">
+        <div className="grid">
+          {CATS[type].map(c=>(
+            <button className={"cat"+(c.key===current?' sel':'')} key={c.key} onClick={()=>onPick(c.key)}>
+              <div className="circle"><Icon name={c.icon} size={30}/></div>
+              <div className="name">{c.label}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ============ DATE PICKER ============ */
+function DatePicker({value, onPick, onClose}){
+  const init = fromDateStr(value);
+  const [y,setY]=useState(init.getFullYear());
+  const [m,setM]=useState(init.getMonth());
+  const [sel,setSel]=useState(value);
+  const first=new Date(y,m,1); let lead=(first.getDay()+6)%7; // Mon=0
+  const dim=new Date(y,m+1,0).getDate();
+  const cells=[]; for(let i=0;i<lead;i++)cells.push(null); for(let d=1;d<=dim;d++)cells.push(d);
+  function shift(dir){ let nm=m+dir,ny=y; if(nm<0){nm=11;ny--;} if(nm>11){nm=0;ny++;} setM(nm);setY(ny); }
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet" onClick={e=>e.stopPropagation()} style={{minHeight:'auto',borderRadius:'0 0 0 0'}}>
+      <div className="sheet-hdr"><div className="top"><div style={{width:40}}/><h2>Kies datum</h2><button className="icon-btn" onClick={onClose}><Icon name="x"/></button></div></div>
+      <div className="sheet-body">
+        <div className="cal">
+          <div className="cal-top">
+            <div className="m">{monthLabel(y,m)}</div>
+            <div className="navs"><button onClick={()=>shift(-1)}><Icon name="cleft"/></button><button onClick={()=>shift(1)}><Icon name="cright"/></button></div>
+          </div>
+          <div className="dow">{DOW.map(d=><div key={d}>{d}</div>)}</div>
+          <div className="days">
+            {cells.map((d,i)=>{ if(d===null) return <div key={i}/>; const ds=toDateStr(new Date(y,m,d));
+              return <button key={i} className={"day"+(ds===sel?" sel":"")} onClick={()=>setSel(ds)}>{d}</button>; })}
+          </div>
+        </div>
+        <div className="save-bar" style={{padding:'16px 0 0'}}>
+          <button className="save-btn" onClick={()=>onPick(sel)}>KIES</button>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ============ ADD / EDIT SHEET ============ */
+function NameModal({title, initial, onSave, onClose}){
+  const [v,setV]=useState(initial||'');
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet" onClick={e=>e.stopPropagation()} style={{minHeight:'auto'}}>
+      <div className="sheet-hdr"><div className="top"><div style={{width:40}}/><h2>{title}</h2><button className="icon-btn" onClick={onClose}><Icon name="x"/></button></div></div>
+      <div className="sheet-body">
+        <div className="row"><input className="desc" autoFocus placeholder="Naam" value={v} onChange={e=>setV(e.target.value)} onKeyDown={e=>{ if(e.key==='Enter'&&v.trim()) onSave(v.trim()); }} /></div>
+        <div className="save-bar"><button className="save-btn" onClick={()=>{ if(v.trim()) onSave(v.trim()); }}>OPSLAAN</button></div>
+      </div>
+    </div>
+  </div>;
+}
+
+function SavingsPicker({savings, onPick, onNew, onClose}){
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet full" onClick={e=>e.stopPropagation()}>
+      <div className="sheet-hdr"><div className="top"><div style={{width:40}}/><h2>Spaarrekening</h2><button className="icon-btn" onClick={onClose}><Icon name="x"/></button></div></div>
+      <div className="sheet-body">
+        {savings.length===0 && <div className="empty">Nog geen spaarrekeningen — maak er hieronder een aan.</div>}
+        {savings.map(s=>(
+          <button className="row" key={s.id} onClick={()=>onPick(s.id)}>
+            <div className="ic filled" style={{background:'#7B57FF'}}><Icon name="piggy" size={22}/></div>
+            <div className="txt">{s.name}</div>
+            <div className="chev"><Icon name="cright" size={20}/></div>
+          </button>
+        ))}
+        <button className="row" onClick={onNew}>
+          <div className="ic"><Icon name="plus" size={22}/></div>
+          <div className="txt">Nieuwe spaarrekening</div>
+        </button>
+      </div>
+    </div>
+  </div>;
+}
+
+function AddSheet({profileId, editTx, savings, onCreatePot, preset, onClose, onSaved, toast}){
+  const isSpaar = editTx? (editTx.category==='sparen') : (preset? preset.type==='sparen' : false);
+  const [type,setType]=useState(editTx? (isSpaar?'sparen':editTx.type) : (preset? preset.type : 'uit'));
+  const [dir,setDir]=useState(editTx&&isSpaar? (editTx.type==='uit'?'storten':'opnemen') : (preset&&preset.dir? preset.dir : 'storten'));
+  const [savId,setSavId]=useState(editTx? (editTx.savings_id||null) : (preset? (preset.savId||null) : null));
+  const [amount,setAmount]=useState(editTx? String(editTx.amount).replace('.',',') : '');
+  const [catKey,setCatKey]=useState(editTx&&!isSpaar? editTx.category : null);
+  const [desc,setDesc]=useState(editTx? (editTx.description||'') : '');
+  const [dateStr,setDateStr]=useState(editTx? editTx.date : toDateStr(new Date()));
+  const [showCat,setShowCat]=useState(false);
+  const [showSav,setShowSav]=useState(false);
+  const [showName,setShowName]=useState(false);
+  const [showDate,setShowDate]=useState(false);
+  const [touched,setTouched]=useState(false);
+  const [busy,setBusy]=useState(false);
+
+  const num = parseFloat((amount||'').replace(/\s/g,'').replace(',','.'));
+  const amtValid = isFinite(num) && num>0;
+  const cat = catKey? catOf(catKey):null;
+  const pot = savId? (savings||[]).find(s=>s.id===savId) : null;
+  const amtColor = amount? (type==='in'?'var(--green)': type==='uit'?'var(--red)': (dir==='opnemen'?'var(--green)':'var(--red)')) : undefined;
+
+  useEffect(()=>{ if((type==='in'||type==='uit') && catKey && !CATS[type].some(c=>c.key===catKey)) setCatKey(null); },[type]);
+
+  async function save(){
+    setTouched(true);
+    if(!amtValid){ return; }
+    if(type==='sparen'){ if(!savId){ setShowSav(true); return; } }
+    else if(!catKey){ setShowCat(true); return; }
+    setBusy(true);
+    const a=Math.round(num*100)/100;
+    let payload;
+    if(type==='sparen'){
+      const pn=pot? pot.name : '';
+      payload={ profile_id:profileId, type:(dir==='storten'?'uit':'in'), amount:a, category:'sparen', description: desc.trim() || ((dir==='storten'?'→ ':'← ')+pn), date:dateStr, savings_id:savId };
+    } else {
+      payload={ profile_id:profileId, type, amount:a, category:catKey, description: desc.trim()||null, date:dateStr, savings_id:null };
+    }
+    let res = editTx ? await db.from('budget_transactions').update(payload).eq('id',editTx.id) : await db.from('budget_transactions').insert(payload);
+    setBusy(false);
+    if(res.error){ toast('Fout bij opslaan'); return; }
+    onSaved(); onClose();
+  }
+  async function del(){
+    if(!editTx) return;
+    if(!window.confirm('Deze transactie verwijderen?')) return;
+    setBusy(true);
+    const res=await db.from('budget_transactions').delete().eq('id',editTx.id);
+    setBusy(false);
+    if(res.error){ toast('Fout bij verwijderen'); return; }
+    onSaved(); onClose();
+  }
+
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet full" onClick={e=>e.stopPropagation()}>
+      <div className="sheet-hdr">
+        <div className="top"><div style={{width:40}}/><h2>{editTx?'Bewerken':'Voeg toe'}</h2><button className="icon-btn" onClick={onClose}><Icon name="x"/></button></div>
+        <div className="seg">
+          <button className={type==='in'?'on':''} onClick={()=>setType('in')}>IN</button>
+          <button className={type==='uit'?'on':''} onClick={()=>setType('uit')}>UIT</button>
+          <button className={type==='sparen'?'on':''} onClick={()=>setType('sparen')}>SPAREN</button>
+        </div>
+      </div>
+      <div className="sheet-body">
+        <div className={"amount-box"+(touched&&!amtValid?' err':'')}>
+          <span className="eur" style={{color:amtColor}}>€</span>
+          <input className="amount-inp" inputMode="decimal" placeholder="0" value={amount}
+            style={{color:amtColor}}
+            onChange={e=>{ setAmount(e.target.value.replace(/[^0-9.,]/g,'')); }} />
+        </div>
+        {touched&&!amtValid && <div className="helper">Gelieve een bedrag in te geven</div>}
+
+        {type==='sparen' && <div className="toggle2" style={{marginTop:12}}>
+          <button className={dir==='storten'?'on':''} onClick={()=>setDir('storten')}>Storten</button>
+          <button className={dir==='opnemen'?'on':''} onClick={()=>setDir('opnemen')}>Opnemen</button>
+        </div>}
+
+        <div className="field-card">
+        {type==='sparen'
+          ? <button className="row" onClick={()=>setShowSav(true)}>
+              <div className={"ic"+(pot?' filled':'')} style={pot?{background:'#7B57FF'}:{}}><Icon name="piggy" size={22}/></div>
+              <div className={"txt"+(pot?'':' ph')}>{pot? pot.name : 'Kies spaarrekening'}</div>
+              <div className="chev"><Icon name="cright" size={20}/></div>
+            </button>
+          : <button className="row" onClick={()=>setShowCat(true)}>
+              <div className={"ic"+(cat?' filled':'')} style={cat?{background:cat.color}:{}}><Icon name={cat?cat.icon:'clip'} size={22}/></div>
+              <div className={"txt"+(cat?'':' ph')}>{cat? cat.label : 'Kies categorie'}</div>
+              <div className="chev"><Icon name="cright" size={20}/></div>
+            </button>}
+
+        <div className="row">
+          <div className="ic"><Icon name="receipt" size={22}/></div>
+          <input className="desc" placeholder="Geef omschrijving" value={desc} onChange={e=>setDesc(e.target.value)} />
+        </div>
+
+        <button className="row" onClick={()=>setShowDate(true)}>
+          <div className="ic"><Icon name="cal" size={22}/></div>
+          <div className="txt">{fromDateStr(dateStr).getDate()} {MONTHS[fromDateStr(dateStr).getMonth()].slice(0,3)} {fromDateStr(dateStr).getFullYear()}</div>
+          <div className="chev"><Icon name="cright" size={20}/></div>
+        </button>
+        </div>
+
+        <div className="save-bar">
+          <button className="save-btn" disabled={busy} onClick={save}>{busy?'...':'OPSLAAN'}</button>
+        </div>
+        {editTx && <button className="del-btn" onClick={del}>Verwijder transactie</button>}
+      </div>
+    </div>
+    {showCat && <CategoryPicker type={type} current={catKey} onPick={k=>{setCatKey(k);setShowCat(false);}} onClose={()=>setShowCat(false)} />}
+    {showSav && <SavingsPicker savings={savings||[]} onPick={id=>{setSavId(id);setShowSav(false);}} onNew={()=>setShowName(true)} onClose={()=>setShowSav(false)} />}
+    {showName && <NameModal title="Nieuwe spaarrekening" onSave={async(nm)=>{ const id=await onCreatePot(nm); if(id) setSavId(id); setShowName(false); setShowSav(false); }} onClose={()=>setShowName(false)} />}
+    {showDate && <DatePicker value={dateStr} onPick={d=>{setDateStr(d);setShowDate(false);}} onClose={()=>setShowDate(false)} />}
+  </div>;
+}
+
+/* ============ BUDGET TAB ============ */
+function TxRow({tx, onClick}){
+  const c=catOf(tx.category);
+  return <div className="tx" onClick={onClick}>
+    <div className="ic" style={{background:c.color}}><Icon name={c.icon} size={22}/></div>
+    <div className="mid">
+      <div className="cat">{c.label}</div>
+      {tx.description && <div className="desc">{tx.description}</div>}
+    </div>
+    <div className="right">
+      <div className={"amt "+(tx.type==='in'?'in':'out')}>{tx.type==='in'?'+ ':'- '}{fmtNum(tx.amount)}</div>
+      <div className="dt">{ddmmyy(tx.date)}</div>
+    </div>
+  </div>;
+}
+
+function BudgetTab({txAll, y, m, setYM, onOpenTx, onOpenStat}){
+  const mk=monthKey(y,m);
+  const mtx=useMemo(()=> txAll.filter(t=>t.date.startsWith(mk)).sort((a,b)=> a.date!==b.date? (a.date<b.date?1:-1) : (a.created_at<b.created_at?1:-1)), [txAll,mk]);
+  const income=mtx.filter(t=>t.type==='in').reduce((s,t)=>s+Number(t.amount),0);
+  const expense=mtx.filter(t=>t.type==='uit').reduce((s,t)=>s+Number(t.amount),0);
+  const saldo=income-expense; const tot=income+expense;
+  function shift(d){ let nm=m+d,ny=y; if(nm<0){nm=11;ny--;} if(nm>11){nm=0;ny++;} setYM(ny,nm); }
+  return <div>
+    <div className="hdr">
+      <div className="hdr-row">
+        <button className="icon-btn" onClick={()=>shift(-1)}><Icon name="aleft"/></button>
+        <div><div className="hdr-title">Jouw budget</div><div className="hdr-sub">{monthLabel(y,m)}</div></div>
+        <button className="icon-btn" onClick={()=>shift(1)}><Icon name="aright"/></button>
+      </div>
+    </div>
+    <div className={"balance "+(saldo>=0?'pos':'neg')}>{fmtSigned(saldo)}</div>
+    <div className="wrap">
+      <div className="cards2">
+        <div className="stat" onClick={()=>onOpenStat('in')}>
+          <div className="chev"><Icon name="cright" size={18}/></div>
+          <MiniDonut frac={tot? income/tot:0} color="#5FD9C0"/>
+          <div className="lbl">INKOMSTEN</div>
+          <div className="val">€ {fmtNum(income)}</div>
+        </div>
+        <div className="stat" onClick={()=>onOpenStat('uit')}>
+          <div className="chev"><Icon name="cright" size={18}/></div>
+          <MiniDonut frac={tot? expense/tot:0} color="#FF8787"/>
+          <div className="lbl">UITGAVEN</div>
+          <div className="val">€ - {fmtNum(expense)}</div>
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-h"><h3>Transacties</h3><span className="count">({mtx.length})</span></div>
+        {mtx.length===0
+          ? <div className="empty">Nog geen transacties deze maand.<br/>Tik op + om er een toe te voegen.</div>
+          : mtx.map(t=> <TxRow key={t.id} tx={t} onClick={()=>onOpenTx(t)} />)}
+      </div>
+    </div>
+  </div>;
+}
+
+/* ============ OVERZICHT TAB ============ */
+function OverzichtTab({txAll, state, setState, onOpenTx}){
+  const {y,m,type,cat}=state;
+  const mk=monthKey(y,m);
+  const mtx=useMemo(()=> txAll.filter(t=>t.date.startsWith(mk) && t.type===type), [txAll,mk,type]);
+  const groups=useMemo(()=>{
+    const map={};
+    mtx.forEach(t=>{ (map[t.category]=map[t.category]||{value:0,items:[]}); map[t.category].value+=Number(t.amount); map[t.category].items.push(t); });
+    return Object.entries(map).map(([k,v])=>({key:k, ...v, ...catOf(k)})).sort((a,b)=>b.value-a.value);
+  },[mtx]);
+  const total=groups.reduce((s,g)=>s+g.value,0);
+  function shift(d){ let nm=m+d,ny=y; if(nm<0){nm=11;ny--;} if(nm>11){nm=0;ny++;} setState({...state,y:ny,m:nm,cat:null}); }
+
+  // Category detail
+  if(cat){
+    const g=groups.find(x=>x.key===cat);
+    const items=(g?g.items:[]).slice().sort((a,b)=> a.date!==b.date? (a.date<b.date?1:-1) : (a.created_at<b.created_at?1:-1));
+    return <div>
+      <div className="hdr"><div className="hdr-row">
+        <button className="icon-btn" onClick={()=>setState({...state,cat:null})}><Icon name="aleft"/></button>
+        <div><div className="hdr-title">{catOf(cat).label}</div><div className="hdr-sub">{monthLabel(y,m)}</div></div>
+        <div style={{width:40}}/>
+      </div></div>
+      <div className={"balance "+(type==='in'?'pos':'neg')}>{type==='in'?'€ + ':'€ - '}{fmtNum(g?g.value:0)}</div>
+      <div className="wrap"><div className="panel">
+        <div className="panel-h"><h3>Transacties</h3><span className="count">({items.length})</span></div>
+        {items.map(t=><TxRow key={t.id} tx={t} onClick={()=>onOpenTx(t)} />)}
+      </div></div>
+    </div>;
+  }
+
+  return <div>
+    <div className="hdr"><div className="hdr-row">
+      <button className="icon-btn" onClick={()=>shift(-1)}><Icon name="aleft"/></button>
+      <div><div className="hdr-title">Overzicht</div><div className="hdr-sub">{monthLabel(y,m)}</div></div>
+      <button className="icon-btn" onClick={()=>shift(1)}><Icon name="aright"/></button>
+    </div></div>
+    <div className="wrap">
+      <div className="toggle2">
+        <button className={type==='uit'?'on':''} onClick={()=>setState({...state,type:'uit',cat:null})}>Uitgaven</button>
+        <button className={type==='in'?'on':''} onClick={()=>setState({...state,type:'in',cat:null})}>Inkomsten</button>
+      </div>
+      <div className="panel" style={{marginTop:14}}>
+        {groups.length===0
+          ? <div className="empty">Geen {type==='in'?'inkomsten':'uitgaven'} deze maand.</div>
+          : <div style={{padding:'8px 16px 14px'}}>
+              <div className="donut-wrap">
+                <BigDonut items={groups} total={total}/>
+                <div style={{marginTop:8,fontWeight:800,fontSize:18}}>{type==='in'?'€ ':'€ '}{fmtNum(total)}</div>
+              </div>
+              <div className="legend">
+                {groups.map(g=>(
+                  <div className="leg" key={g.key} onClick={()=>setState({...state,cat:g.key})}>
+                    <div className="dot" style={{background:g.color}}><Icon name={g.icon} size={18}/></div>
+                    <div className="nm">{g.label}</div>
+                    <div className="pc">{total? Math.round(g.value/total*100):0}%</div>
+                    <div className="vv">{fmtNum(g.value)}</div>
+                    <div className="chev" style={{marginLeft:6}}><Icon name="cright" size={18}/></div>
+                  </div>
+                ))}
+              </div>
+            </div>}
+      </div>
+    </div>
+  </div>;
+}
+
+/* ============ PROFIELEN TAB ============ */
+function ProfielenTab({profiles, activeId, setActive, onRename, onOpenRecurring, onLogout}){
+  const [names,setNames]=useState({});
+  useEffect(()=>{ const n={}; profiles.forEach(p=>n[p.id]=p.name); setNames(n); },[profiles]);
+  return <div>
+    <div className="hdr"><div className="hdr-row"><div style={{width:40}}/><div className="hdr-title">Profielen</div><div style={{width:40}}/></div></div>
+    <div className="wrap">
+      <div className="note"><h4>Aparte rekeningen</h4><p>Elke rekening houdt eigen inkomsten, uitgaven en spaarrekeningen bij. Tik om actief te maken. Wijzigingen zien jullie allebei live.</p></div>
+      {profiles.map(p=>(
+        <div className={"pf"+(p.id===activeId?' active':'')} key={p.id}>
+          <div className="av" onClick={()=>setActive(p.id)}>{(names[p.id]||'?').trim().charAt(0).toUpperCase()||'?'}</div>
+          <input value={names[p.id]!==undefined?names[p.id]:p.name}
+            onChange={e=>setNames({...names,[p.id]:e.target.value})}
+            onBlur={e=>{ const v=e.target.value.trim(); if(v && v!==p.name) onRename(p.id,v); }} />
+          {p.id===activeId ? <span className="pick">ACTIEF</span> : <button className="pick" style={{color:'#b6b6c2'}} onClick={()=>setActive(p.id)}>KIES</button>}
+        </div>
+      ))}
+      <button className="save-btn" style={{width:'100%',marginTop:16,background:'#fff',color:'#1B1B24',boxShadow:'0 4px 14px rgba(60,50,120,.06)'}} onClick={onOpenRecurring}>
+        <Icon name="refresh" size={20} style={{marginRight:8}}/> Vaste kosten beheren
+      </button>
+      <div className="note" style={{marginTop:16}}><h4>Op je beginscherm</h4><p>Browsermenu → "Toevoegen aan beginscherm" voor een echt app-icoon.</p></div>
+      <button className="save-btn" style={{width:'100%',marginTop:10,background:'#ececf2',color:'#1B1B24'}} onClick={onLogout}>Uitloggen</button>
+    </div>
+  </div>;
+}
+
+/* ============ SPAREN TAB ============ */
+function SparenTab({savings, txAll, onCreate, onRename, onDelete, onQuick, onOpenTx}){
+  const [detail,setDetail]=useState(null);
+  const [modal,setModal]=useState(null);
+  useEffect(()=>{ if(detail && !savings.some(p=>p.id===detail)) setDetail(null); },[savings,detail]);
+  function balOf(id){ let b=0; txAll.forEach(t=>{ if(t.savings_id===id) b += (t.type==='uit'?Number(t.amount):-Number(t.amount)); }); return b; }
+  const total=savings.reduce((s,p)=>s+balOf(p.id),0);
+
+  if(detail){
+    const pot=savings.find(p=>p.id===detail);
+    if(!pot) return null;
+    const items=txAll.filter(t=>t.savings_id===detail).sort((a,b)=> a.date!==b.date?(a.date<b.date?1:-1):(a.created_at<b.created_at?1:-1));
+    return <div>
+      <div className="hdr"><div className="hdr-row">
+        <button className="icon-btn" onClick={()=>setDetail(null)}><Icon name="aleft"/></button>
+        <div><div className="hdr-title">{pot.name}</div><div className="hdr-sub">spaarrekening</div></div>
+        <div style={{width:40}}/>
+      </div></div>
+      <div className="balance pos">€ {fmtNum(balOf(detail))}</div>
+      <div className="wrap">
+        <div style={{display:'flex',gap:12}}>
+          <button className="save-btn" style={{flex:1,height:50}} onClick={()=>onQuick(detail,'storten')}>Storten</button>
+          <button className="save-btn" style={{flex:1,height:50,background:'#ececf2',color:'#1B1B24'}} onClick={()=>onQuick(detail,'opnemen')}>Opnemen</button>
+        </div>
+        <div style={{display:'flex',gap:12,marginTop:10}}>
+          <button className="save-btn" style={{flex:1,height:44,fontSize:15,background:'#fff',color:'#1B1B24',boxShadow:'0 4px 14px rgba(60,50,120,.06)'}} onClick={()=>setModal({mode:'rename',pot})}>Hernoemen</button>
+          <button className="save-btn" style={{flex:1,height:44,fontSize:15,background:'#fff',color:'var(--red)',boxShadow:'0 4px 14px rgba(60,50,120,.06)'}} onClick={()=>{ if(window.confirm('Spaarrekening verwijderen? De transacties blijven bestaan.')){ onDelete(detail); setDetail(null); } }}>Verwijderen</button>
+        </div>
+        <div className="panel" style={{marginTop:14}}>
+          <div className="panel-h"><h3>Transacties</h3><span className="count">({items.length})</span></div>
+          {items.length===0? <div className="empty">Nog geen stortingen of opnames.</div>
+            : items.map(t=><TxRow key={t.id} tx={t} onClick={()=>onOpenTx(t)} />)}
+        </div>
+      </div>
+      {modal&&modal.mode==='rename' && <NameModal title="Hernoem spaarrekening" initial={modal.pot.name} onSave={nm=>{ onRename(modal.pot.id,nm); setModal(null); }} onClose={()=>setModal(null)} />}
+    </div>;
+  }
+
+  return <div>
+    <div className="hdr"><div className="hdr-row"><div style={{width:40}}/><div className="hdr-title">Sparen</div><div style={{width:40}}/></div></div>
+    <div className="balance pos">€ {fmtNum(total)}</div>
+    <div className="wrap">
+      <div className="note"><h4>Spaarrekeningen</h4><p>Maak er zoveel als je wil en geef ze een eigen naam. Storten of opnemen doe je hier of via + (SPAREN).</p></div>
+      {savings.map(p=>(
+        <div className="pf" key={p.id} onClick={()=>setDetail(p.id)} style={{cursor:'pointer'}}>
+          <div className="av"><Icon name="piggy" size={22}/></div>
+          <div style={{flex:1,fontWeight:700,fontSize:16}}>{p.name}</div>
+          <div style={{fontWeight:800}}>€ {fmtNum(balOf(p.id))}</div>
+          <div className="chev" style={{marginLeft:8}}><Icon name="cright" size={18}/></div>
+        </div>
+      ))}
+      <button className="save-btn" style={{width:'100%',marginTop:14}} onClick={()=>setModal({mode:'new'})}>+ Nieuwe spaarrekening</button>
+    </div>
+    {modal&&modal.mode==='new' && <NameModal title="Nieuwe spaarrekening" onSave={nm=>{ onCreate(nm); setModal(null); }} onClose={()=>setModal(null)} />}
+  </div>;
+}
+
+/* ============ VASTE KOSTEN ============ */
+function RecurringSheet({profileId, editRule, onClose, onSaved, toast}){
+  const [type,setType]=useState(editRule? editRule.type : 'uit');
+  const [amount,setAmount]=useState(editRule? String(editRule.amount).replace('.',',') : '');
+  const [catKey,setCatKey]=useState(editRule? editRule.category : null);
+  const [desc,setDesc]=useState(editRule? (editRule.description||'') : '');
+  const [day,setDay]=useState(editRule? String(editRule.day) : '1');
+  const [showCat,setShowCat]=useState(false);
+  const [touched,setTouched]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const num=parseFloat((amount||'').replace(/\s/g,'').replace(',','.'));
+  const amtValid=isFinite(num)&&num>0;
+  const dNum=Math.min(31,Math.max(1, parseInt(day||'1',10)||1));
+  const cat=catKey?catOf(catKey):null;
+  useEffect(()=>{ if(catKey && !CATS[type].some(c=>c.key===catKey)) setCatKey(null); },[type]);
+
+  async function save(){
+    setTouched(true);
+    if(!amtValid) return;
+    if(!catKey){ setShowCat(true); return; }
+    setBusy(true);
+    const payload={ profile_id:profileId, type, amount:Math.round(num*100)/100, category:catKey, description:desc.trim()||null, day:dNum };
+    let res = editRule? await db.from('budget_recurring').update(payload).eq('id',editRule.id) : await db.from('budget_recurring').insert(payload);
+    setBusy(false);
+    if(res.error){ toast('Fout bij opslaan'); return; }
+    onSaved(); onClose();
+  }
+  async function del(){
+    if(!editRule) return;
+    if(!window.confirm('Vaste kost verwijderen? Reeds toegevoegde transacties blijven staan.')) return;
+    await db.from('budget_recurring').delete().eq('id',editRule.id);
+    onSaved(); onClose();
+  }
+
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet full" onClick={e=>e.stopPropagation()}>
+      <div className="sheet-hdr">
+        <div className="top"><div style={{width:40}}/><h2>{editRule?'Vaste kost':'Nieuwe vaste kost'}</h2><button className="icon-btn" onClick={onClose}><Icon name="x"/></button></div>
+        <div className="seg">
+          <button className={type==='in'?'on':''} onClick={()=>setType('in')}>IN</button>
+          <button className={type==='uit'?'on':''} onClick={()=>setType('uit')}>UIT</button>
+        </div>
+      </div>
+      <div className="sheet-body">
+        <div className={"amount-box"+(touched&&!amtValid?' err':'')}>
+          <span className="eur" style={{color:amount?(type==='in'?'var(--green)':'var(--red)'):undefined}}>€</span>
+          <input className="amount-inp" inputMode="decimal" placeholder="0" value={amount} style={{color:amount?(type==='in'?'var(--green)':'var(--red)'):undefined}} onChange={e=>setAmount(e.target.value.replace(/[^0-9.,]/g,''))} />
+        </div>
+        {touched&&!amtValid && <div className="helper">Gelieve een bedrag in te geven</div>}
+        <div className="field-card">
+        <button className="row" onClick={()=>setShowCat(true)}>
+          <div className={"ic"+(cat?' filled':'')} style={cat?{background:cat.color}:{}}><Icon name={cat?cat.icon:'clip'} size={22}/></div>
+          <div className={"txt"+(cat?'':' ph')}>{cat?cat.label:'Kies categorie'}</div>
+          <div className="chev"><Icon name="cright" size={20}/></div>
+        </button>
+        <div className="row">
+          <div className="ic"><Icon name="receipt" size={22}/></div>
+          <input className="desc" placeholder="Omschrijving (bv. huur)" value={desc} onChange={e=>setDesc(e.target.value)} />
+        </div>
+        <div className="row">
+          <div className="ic"><Icon name="refresh" size={22}/></div>
+          <div style={{flex:1,fontWeight:600}}>Elke maand op dag</div>
+          <input className="desc" inputMode="numeric" style={{textAlign:'right',maxWidth:60}} value={day} onChange={e=>setDay(e.target.value.replace(/[^0-9]/g,'').slice(0,2))} />
+        </div>
+        </div>
+        <div className="save-bar">
+          <button className="save-btn" disabled={busy} onClick={save}>{busy?'...':'OPSLAAN'}</button>
+        </div>
+        {editRule && <button className="del-btn" onClick={del}>Verwijder vaste kost</button>}
+      </div>
+    </div>
+    {showCat && <CategoryPicker type={type} current={catKey} onPick={k=>{setCatKey(k);setShowCat(false);}} onClose={()=>setShowCat(false)} />}
+  </div>;
+}
+
+function VasteKostenScreen({profileId, recurring, onSaved, onClose, toast}){
+  const [edit,setEdit]=useState(undefined); // undefined=dicht, null=nieuw, obj=bewerken
+  return <div className="overlay" onClick={onClose}>
+    <div className="sheet full" onClick={e=>e.stopPropagation()} style={{background:'var(--bg)'}}>
+      <div className="hdr" style={{borderRadius:0}}><div className="hdr-row">
+        <button className="icon-btn" onClick={onClose}><Icon name="aleft"/></button>
+        <div className="hdr-title">Vaste kosten</div>
+        <div style={{width:40}}/>
+      </div></div>
+      <div className="sheet-body">
+        <div className="note"><h4>Herhalende posten</h4><p>Loon, huur, abonnementen… worden elke maand automatisch toegevoegd op de gekozen dag.</p></div>
+        {recurring.length===0 && <div className="empty">Nog geen vaste kosten.</div>}
+        {recurring.map(r=>{ const c=catOf(r.category); return (
+          <div className="row" key={r.id} onClick={()=>setEdit(r)}>
+            <div className="ic filled" style={{background:c.color}}><Icon name={c.icon} size={22}/></div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:800,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{c.label}{r.description?' · '+r.description:''}</div>
+              <div style={{color:'var(--muted)',fontSize:13}}>Elke maand op dag {r.day}</div>
+            </div>
+            <div style={{fontWeight:800,color:r.type==='in'?'var(--green)':'var(--red)',marginLeft:8}}>{r.type==='in'?'+ ':'- '}{fmtNum(r.amount)}</div>
+          </div>
+        );})}
+        <button className="save-btn" style={{width:'100%',marginTop:14}} onClick={()=>setEdit(null)}>+ Nieuwe vaste kost</button>
+      </div>
+    </div>
+    {edit!==undefined && <RecurringSheet profileId={profileId} editRule={edit} onClose={()=>setEdit(undefined)} onSaved={()=>{ setEdit(undefined); onSaved(); }} toast={toast} />}
+  </div>;
+}
+
+async function materializeRecurring(profileId, rules, txList){
+  const now=new Date(); const cy=now.getFullYear(), cm=now.getMonth();
+  const existing=new Set((txList||[]).filter(t=>t.recurring_id).map(t=>t.recurring_id+'|'+t.date));
+  const rows=[];
+  (rules||[]).filter(r=>r.active).forEach(r=>{
+    const s=fromDateStr(r.start_date); let y=s.getFullYear(), m=s.getMonth();
+    const floor=new Date(cy, cm-24, 1);
+    if(new Date(y,m,1)<floor){ y=floor.getFullYear(); m=floor.getMonth(); }
+    let guard=0;
+    while((y<cy || (y===cy && m<=cm)) && guard<60){
+      guard++;
+      const dim=new Date(y,m+1,0).getDate();
+      const ds=toDateStr(new Date(y,m,Math.min(r.day,dim)));
+      if(!existing.has(r.id+'|'+ds)) rows.push({ profile_id:profileId, type:r.type, amount:r.amount, category:r.category, description:r.description, date:ds, recurring_id:r.id });
+      m++; if(m>11){m=0;y++;}
+    }
+  });
+  if(rows.length){ await db.from('budget_transactions').upsert(rows,{onConflict:'recurring_id,date',ignoreDuplicates:true}); return true; }
+  return false;
+}
+
+/* ============ APP ROOT ============ */
+function App(){
+  const [ok,setOk]=useState(localStorage.getItem('budget_ok')==='1');
+  const [profiles,setProfiles]=useState([]);
+  const [activeId,setActiveId]=useState(localStorage.getItem('budget_profile')||null);
+  const [txAll,setTxAll]=useState([]);
+  const [savings,setSavings]=useState([]);
+  const [recurring,setRecurring]=useState([]);
+  const [tab,setTab]=useState('budget');
+  const now=new Date();
+  const [ym,setYm]=useState({y:now.getFullYear(), m:now.getMonth()});
+  const [ovz,setOvz]=useState({y:now.getFullYear(), m:now.getMonth(), type:'uit', cat:null});
+  const [addOpen,setAddOpen]=useState(false);
+  const [editTx,setEditTx]=useState(null);
+  const [addPreset,setAddPreset]=useState(null);
+  const [screen,setScreen]=useState(null);
+  const [toastMsg,setToastMsg]=useState('');
+  const toast=useCallback((msg)=>{ setToastMsg(msg); setTimeout(()=>setToastMsg(''),1800); },[]);
+
+  const loadProfiles=useCallback(async()=>{
+    const {data}=await db.from('budget_profiles').select('*').order('position');
+    if(data){ setProfiles(data); setActiveId(prev=>{ const keep=prev&&data.some(p=>p.id===prev); return keep?prev:(data[0]?data[0].id:null); }); }
+  },[]);
+  const loadSavings=useCallback(async(pid)=>{ const {data}=await db.from('budget_savings').select('*').eq('profile_id',pid).order('position'); setSavings(data||[]); },[]);
+  const loadData=useCallback(async(pid)=>{
+    if(!pid){ setTxAll([]); setSavings([]); setRecurring([]); return; }
+    const [txR,svR,rcR]=await Promise.all([
+      db.from('budget_transactions').select('*').eq('profile_id',pid),
+      db.from('budget_savings').select('*').eq('profile_id',pid).order('position'),
+      db.from('budget_recurring').select('*').eq('profile_id',pid).order('created_at'),
+    ]);
+    let tx=txR.data||[]; setSavings(svR.data||[]); setRecurring(rcR.data||[]);
+    const did=await materializeRecurring(pid, rcR.data||[], tx);
+    if(did){ const r2=await db.from('budget_transactions').select('*').eq('profile_id',pid); tx=r2.data||tx; }
+    setTxAll(tx);
+  },[]);
+
+  useEffect(()=>{ if(ok) loadProfiles(); },[ok]);
+  useEffect(()=>{ if(activeId){ localStorage.setItem('budget_profile',activeId); loadData(activeId); } },[activeId]);
+
+  useEffect(()=>{
+    if(!ok) return;
+    const reload=()=>setActiveId(a=>{ if(a) loadData(a); return a; });
+    const ch=db.channel('budget-rt')
+      .on('postgres_changes',{event:'*',schema:'public',table:'budget_transactions'},reload)
+      .on('postgres_changes',{event:'*',schema:'public',table:'budget_savings'},reload)
+      .on('postgres_changes',{event:'*',schema:'public',table:'budget_recurring'},reload)
+      .on('postgres_changes',{event:'*',schema:'public',table:'budget_profiles'},()=>loadProfiles())
+      .subscribe();
+    return ()=>{ db.removeChannel(ch); };
+  },[ok]);
+
+  async function renameProfile(id,name){ await db.from('budget_profiles').update({name}).eq('id',id); loadProfiles(); }
+  function openStat(type){ setOvz({...ovz, y:ym.y, m:ym.m, type, cat:null}); setTab('overzicht'); }
+  async function createPot(name){ const {data}=await db.from('budget_savings').insert({profile_id:activeId,name,position:savings.length}).select().single(); if(activeId) loadSavings(activeId); return data?data.id:null; }
+  async function renamePot(id,name){ await db.from('budget_savings').update({name}).eq('id',id); if(activeId) loadSavings(activeId); }
+  async function deletePot(id){ await db.from('budget_savings').delete().eq('id',id); if(activeId) loadData(activeId); }
+  function openAdd(preset){ setEditTx(null); setAddPreset(preset||null); setAddOpen(true); }
+  function quickSpaar(potId,dir){ openAdd({type:'sparen',dir,savId:potId}); }
+  const openTx=t=>{ setEditTx(t); setAddPreset(null); setAddOpen(true); };
+
+  if(!ok) return <Gate onOk={()=>setOk(true)} />;
+
+  return <div className="app">
+    {tab==='budget' && <BudgetTab txAll={txAll} y={ym.y} m={ym.m}
+      setYM={(y,m)=>setYm({y,m})} onOpenTx={openTx} onOpenStat={openStat} />}
+    {tab==='sparen' && <SparenTab savings={savings} txAll={txAll} onCreate={createPot} onRename={renamePot} onDelete={deletePot} onQuick={quickSpaar} onOpenTx={openTx} />}
+    {tab==='overzicht' && <OverzichtTab txAll={txAll} state={ovz} setState={setOvz} onOpenTx={openTx} />}
+    {tab==='profielen' && <ProfielenTab profiles={profiles} activeId={activeId} setActive={setActiveId} onRename={renameProfile} onOpenRecurring={()=>setScreen('vastekosten')} onLogout={()=>{ localStorage.removeItem('budget_ok'); setOk(false); }} />}
+
+    <div className="nav"><div className="nav-inner">
+      <button className={"nav-btn"+(tab==='budget'?' on':'')} onClick={()=>setTab('budget')}><Icon name="eye" size={24} sw={2.2}/><span>Budget</span></button>
+      <button className={"nav-btn"+(tab==='sparen'?' on':'')} onClick={()=>setTab('sparen')}><Icon name="piggy" size={24} sw={2}/><span>Sparen</span></button>
+      <div className="nav-spacer"/>
+      <button className={"nav-btn"+(tab==='overzicht'?' on':'')} onClick={()=>setTab('overzicht')}><Icon name="chart" size={24} sw={2.2}/><span>Overzicht</span></button>
+      <button className={"nav-btn"+(tab==='profielen'?' on':'')} onClick={()=>setTab('profielen')}><Icon name="users" size={24} sw={2.2}/><span>Profielen</span></button>
+      <div className="fab" onClick={()=>{ if(!activeId){toast('Maak eerst een profiel actief');return;} openAdd(null); }}><Icon name="plus" size={30} sw={2.6}/></div>
+    </div></div>
+
+    {addOpen && <AddSheet profileId={activeId} editTx={editTx} savings={savings} onCreatePot={createPot} preset={addPreset}
+      onClose={()=>{setAddOpen(false);setEditTx(null);setAddPreset(null);}}
+      onSaved={()=>loadData(activeId)} toast={toast} />}
+
+    {screen==='vastekosten' && <VasteKostenScreen profileId={activeId} recurring={recurring} onSaved={()=>loadData(activeId)} onClose={()=>setScreen(null)} toast={toast} />}
+
+    {toastMsg && <div className="toast">{toastMsg}</div>}
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<script>
+(function(){
+  function showErr(m){ var r=document.getElementById('root'); if(r){ r.innerHTML='<div style="padding:26px;font:15px -apple-system,sans-serif;color:#b00;line-height:1.6">Er ging iets mis:<br><b>'+m+'</b><br><br>Herlaad de pagina (Ctrl+F5).</div>'; } }
+  try{
+    if(typeof Babel==='undefined') throw new Error('Babel niet geladen — controleer je internet');
+    if(typeof React==='undefined') throw new Error('React niet geladen — controleer je internet');
+    if(typeof supabase==='undefined') throw new Error('Supabase niet geladen — controleer je internet');
+    var src=document.getElementById('app-src').textContent;
+    var out=Babel.transform(src,{presets:[['react',{runtime:'classic'}]]}).code;
+    eval(out);
+  }catch(e){ showErr(e.message||String(e)); console.error(e); }
+})();
+</script>
+</body>
+</html>
