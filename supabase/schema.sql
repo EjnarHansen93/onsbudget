@@ -62,7 +62,6 @@ create unique index if not exists uq_tx_recurring_date
   on public.budget_transactions (recurring_id, date);
 
 -- RLS staat aan, maar de policies laten iedereen met de anon key alles doen.
--- De strengere versie (enkel ingelogde leden) staat klaar in supabase/pending/rls_lockdown.sql.
 alter table public.budget_profiles     enable row level security;
 alter table public.budget_savings      enable row level security;
 alter table public.budget_recurring    enable row level security;

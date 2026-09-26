@@ -44,16 +44,16 @@ Communiceer met Ejnar in het Nederlands, kort en actiegericht.
   Pauzeren = `active=false`; bij heractiveren zet de app `generated_until` op vandaag (geen inhaalmaanden).
 - **Notities** staan in `budget_notes`. Oude lokale notities (`localStorage.budget_notes_<profileId>`) worden
   bij het laden één keer naar Supabase overgezet.
-- **Inloggen:** Supabase Auth, e-mail + wachtwoord (`signInWithPassword`); supabase-js bewaart de sessie.
-  Accounts maak je in het Supabase-dashboard. `localStorage.budget_profile` onthoudt het actieve profiel.
+- Toegangscode-poort (`ACCESS_CODE = "samen"`) is puur client-side; `localStorage.budget_ok` onthoudt login,
+  `localStorage.budget_profile` het actieve profiel. **Bewuste keuze van Ejnar: zo houden** (geen e-mail-login).
 
 ## Tabs / schermen
 Budget (maandsaldo, in/uit-donuts, transactielijst) · Sparen (potten + notities) · Overzicht (donut per categorie → detail) ·
 Profielen (hernoemen, actief kiezen, Vaste kosten beheren, uitloggen) · FAB "+" → `AddSheet` (IN / UIT / SPAREN).
 
 ## Bekende aandachtspunten / mogelijke volgende stappen
-1. **Beveiliging:** de app logt in via Supabase Auth, maar zolang `supabase/pending/rls_lockdown.sql` niet is
-   uitgevoerd staan de policies nog open (`using (true)`). Na uitvoeren: "Allow new users to sign up" uitzetten.
+1. **Beveiliging:** anon key + `using (true)`-policies ⇒ wie de key uit de paginabron haalt kan alles lezen/wijzigen.
+   Ejnar wil de toegangscode behouden (geen Supabase Auth) — niet opnieuw voorstellen tenzij hij erom vraagt.
 2. ~~Notities naar Supabase~~ — gedaan (`budget_notes`).
 3. ~~Vaste kosten in de toekomst / komen terug na verwijderen~~ — gedaan (`generated_until`).
 4. **Performance:** Babel in de browser maakt de eerste load traag. Migratie naar Vite + React (build naar `dist/`,

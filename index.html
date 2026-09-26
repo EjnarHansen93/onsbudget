@@ -195,8 +195,7 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
 /* ============ CONFIG ============ */
 const SUPA_URL = "https://lkzxkovpswyllzunrqks.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrenhrb3Zwc3d5bGx6dW5ycWtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3Nzc2NjgsImV4cCI6MjEwMTM1MzY2OH0.u8Oav9kcO5d9G9q3fi8LmSyDTIqJ6B8kgJvKeH_hVt0";
-// Inloggen via Supabase Auth (e-mail + wachtwoord). Accounts maak je aan in het Supabase-dashboard;
-// de database laat enkel e-mailadressen uit budget_members toe (zie supabase/schema.sql).
+const ACCESS_CODE = "samen"; // <-- pas dit aan naar jullie eigen code
 
 const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
@@ -313,26 +312,16 @@ function BigDonut({items, total}){
 }
 
 /* ============ GATE ============ */
-function Gate(){
-  const [email,setEmail]=useState(""); const [pw,setPw]=useState("");
-  const [err,setErr]=useState(""); const [busy,setBusy]=useState(false);
-  async function submit(){
-    if(!email.trim()||!pw){ setErr("Vul e-mail en wachtwoord in"); return; }
-    setBusy(true);
-    const {error}=await db.auth.signInWithPassword({email:email.trim(), password:pw});
-    setBusy(false);
-    if(error) setErr(error.message==='Invalid login credentials'?'Foute e-mail of wachtwoord':'Inloggen mislukt');
-  }
-  const onKey=e=>{ if(e.key==='Enter') submit(); };
+function Gate({onOk}){
+  const [v,setV]=useState(""); const [err,setErr]=useState("");
+  function submit(){ if(v.trim().toLowerCase()===ACCESS_CODE.toLowerCase()){ localStorage.setItem('budget_ok','1'); onOk(); } else { setErr("Foute code"); } }
   return <div className="gate">
     <svg className="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#fff" opacity="0.14"/><path d="M13 31 L32 14 L51 31" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/><path d="M17 28 V50 H47 V28" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinejoin="round"/><text x="32" y="45" textAnchor="middle" fontSize="19" fontWeight="800" fill="#fff">€</text></svg>
     <h1>OnsBudget</h1>
-    <input type="email" autoComplete="username" inputMode="email" placeholder="E-mail" value={email}
-      onChange={e=>{setEmail(e.target.value);setErr("");}} onKeyDown={onKey} />
-    <input type="password" autoComplete="current-password" placeholder="Wachtwoord" value={pw}
-      onChange={e=>{setPw(e.target.value);setErr("");}} onKeyDown={onKey} />
+    <input type="password" inputMode="text" placeholder="Toegangscode" value={v}
+      onChange={e=>{setV(e.target.value);setErr("");}} onKeyDown={e=>{if(e.key==='Enter')submit();}} />
     <div className="err">{err}</div>
-    <button onClick={submit} disabled={busy}>{busy?'...':'Inloggen'}</button>
+    <button onClick={submit}>Openen</button>
   </div>;
 }
 
@@ -935,13 +924,7 @@ async function materializeRecurring(profileId, rules){
 
 /* ============ APP ROOT ============ */
 function App(){
-  const [session,setSession]=useState(undefined); // undefined = nog aan het laden
-  const ok=!!session;
-  useEffect(()=>{
-    db.auth.getSession().then(({data})=>setSession(data.session||null));
-    const {data:sub}=db.auth.onAuthStateChange((_ev,s)=>setSession(s||null));
-    return ()=>sub.subscription.unsubscribe();
-  },[]);
+  const [ok,setOk]=useState(localStorage.getItem('budget_ok')==='1');
   const [profiles,setProfiles]=useState([]);
   const [activeId,setActiveId]=useState(localStorage.getItem('budget_profile')||null);
   const [txAll,setTxAll]=useState([]);
@@ -1018,15 +1001,14 @@ function App(){
   function quickSpaar(potId,dir){ openAdd({type:'sparen',dir,savId:potId}); }
   const openTx=t=>{ setEditTx(t); setAddPreset(null); setAddOpen(true); };
 
-  if(session===undefined) return <div className="gate"/>;
-  if(!ok) return <Gate />;
+  if(!ok) return <Gate onOk={()=>setOk(true)} />;
 
   return <div className="app">
     {tab==='budget' && <BudgetTab txAll={txAll} y={ym.y} m={ym.m}
       setYM={(y,m)=>setYm({y,m})} onOpenTx={openTx} onOpenStat={openStat} />}
     {tab==='sparen' && <SparenTab savings={savings} txAll={txAll} notes={notes} onCreate={createPot} onRename={renamePot} onDelete={deletePot} onQuick={quickSpaar} onOpenTx={openTx} onAddNote={addNote} onToggleNote={toggleNote} onDeleteNote={deleteNote} />}
     {tab==='overzicht' && <OverzichtTab txAll={txAll} state={ovz} setState={setOvz} onOpenTx={openTx} />}
-    {tab==='profielen' && <ProfielenTab profiles={profiles} activeId={activeId} setActive={setActiveId} onRename={renameProfile} onOpenRecurring={()=>setScreen('vastekosten')} onLogout={()=>{ try{ localStorage.removeItem('budget_ok'); }catch(e){} db.auth.signOut(); }} />}
+    {tab==='profielen' && <ProfielenTab profiles={profiles} activeId={activeId} setActive={setActiveId} onRename={renameProfile} onOpenRecurring={()=>setScreen('vastekosten')} onLogout={()=>{ localStorage.removeItem('budget_ok'); setOk(false); }} />}
 
     <div className="nav"><div className="nav-inner">
       <button className={"nav-btn"+(tab==='budget'?' on':'')} onClick={()=>setTab('budget')}><Icon name="eye" size={24} sw={2.2}/><span>Budget</span></button>
