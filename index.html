@@ -554,8 +554,10 @@ function AddSheet({profileId, editTx, savings, onCreatePot, preset, onClose, onS
 }
 
 /* ============ BUDGET TAB ============ */
-function TxRow({tx, onClick}){
+// potView: bekeken vanuit de spaarrekening → storten (type 'uit') is + voor de pot, opnemen is −.
+function TxRow({tx, onClick, potView}){
   const c=catOf(tx.category);
+  const plus = potView ? tx.type==='uit' : tx.type==='in';
   return <div className="tx" onClick={onClick}>
     <div className="ic" style={{background:c.color}}><Icon name={c.icon} size={22}/></div>
     <div className="mid">
@@ -563,7 +565,7 @@ function TxRow({tx, onClick}){
       {tx.description && <div className="desc">{tx.description}</div>}
     </div>
     <div className="right">
-      <div className={"amt "+(tx.type==='in'?'in':'out')}>{tx.type==='in'?'+ ':'- '}{fmtNum(tx.amount)}</div>
+      <div className={"amt "+(plus?'in':'out')}>{plus?'+ ':'- '}{fmtNum(tx.amount)}</div>
       <div className="dt">{ddmmyy(tx.date)}</div>
     </div>
   </div>;
@@ -736,7 +738,7 @@ function SparenTab({savings, txAll, notes, onCreate, onRename, onDelete, onQuick
         <div className="panel" style={{marginTop:14}}>
           <div className="panel-h"><h3>Transacties</h3><span className="count">({items.length})</span></div>
           {items.length===0? <div className="empty">Nog geen stortingen of opnames.</div>
-            : items.map(t=><TxRow key={t.id} tx={t} onClick={()=>onOpenTx(t)} />)}
+            : items.map(t=><TxRow key={t.id} tx={t} potView onClick={()=>onOpenTx(t)} />)}
         </div>
       </div>
       {modal&&modal.mode==='rename' && <NameModal title="Hernoem spaarrekening" initial={modal.pot.name} onSave={nm=>{ onRename(modal.pot.id,nm); setModal(null); }} onClose={()=>setModal(null)} />}

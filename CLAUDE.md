@@ -36,7 +36,8 @@ Communiceer met Ejnar in het Nederlands, kort en actiegericht.
 - Categorieën zijn hardcoded in `CATS` (keys als `boodschappen`, `andere_uit`, …). Onbekende keys vallen terug op grijze "clip".
 - **Sparen** = transactie met `category='sparen'` + `savings_id`:
   storten → `type='uit'` (verlaagt maandsaldo, verhoogt spaarpot); opnemen → `type='in'`.
-  Spaarsaldo = Σ(uit) − Σ(in) voor die `savings_id`.
+  Spaarsaldo = Σ(uit) − Σ(in) voor die `savings_id`. In de spaarrekening-detail tonen transacties vanuit de pot
+  gezien (`TxRow potView`): storten = groen +, opnemen = rood −. Op Budget/Overzicht blijft storten rood −.
 - **Vaste kosten:** `materializeRecurring()` draait client-side bij elke `loadData`: maakt voor elke actieve regel
   per maand (van `start_date`, max 24 maanden terug) een transactie met `recurring_id`, **enkel t.e.m. vandaag**
   en enkel na `generated_until` (dat daarna wordt bijgewerkt). Zo komen verwijderde/verplaatste transacties
