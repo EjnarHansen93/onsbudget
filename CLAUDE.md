@@ -25,8 +25,9 @@ Communiceer met Ejnar in het Nederlands, kort en actiegericht.
   - `budget_profiles` (id, name, position) — 3 rekeningen: "Gezamenlijk", "Shauni privé", "Rekening 3" (hernoembaar).
   - `budget_transactions` (profile_id, type `in|uit`, amount ≥ 0, category, description, date, savings_id?, recurring_id?)
   - `budget_savings` (profile_id, name, position) — spaarrekeningen.
-  - `budget_recurring` (profile_id, type, amount, category, description, day 1–31, active, start_date) — vaste kosten.
-- Realtime staat aan op alle 4 tabellen; de app herlaadt bij elke wijziging (`channel('budget-rt')`).
+  - `budget_recurring` (profile_id, type, amount, category, description, day 1–31, active, start_date, generated_until) — vaste kosten.
+  - `budget_notes` (profile_id, text, amount?, done) — notities op de Sparen-tab (gedeeld, realtime).
+- Realtime staat aan op alle 5 tabellen; de app herlaadt bij elke wijziging (`channel('budget-rt')`).
 - **Schemawijzigingen** altijd als migratie (Supabase MCP `apply_migration` of CLI), en `supabase/schema.sql` bijwerken.
   Nooit data wissen zonder expliciete toestemming — er staat echte data in.
 
@@ -37,22 +38,24 @@ Communiceer met Ejnar in het Nederlands, kort en actiegericht.
   storten → `type='uit'` (verlaagt maandsaldo, verhoogt spaarpot); opnemen → `type='in'`.
   Spaarsaldo = Σ(uit) − Σ(in) voor die `savings_id`.
 - **Vaste kosten:** `materializeRecurring()` draait client-side bij elke `loadData`: maakt voor elke actieve regel
-  per maand (van `start_date`, max 24 maanden terug, t.e.m. huidige maand) een transactie met `recurring_id`.
-  De unieke index `(recurring_id, date)` + `upsert … ignoreDuplicates` voorkomt dubbels.
-- **Notities** (Sparen-tab) staan in `localStorage` (`budget_notes_<profileId>`) → **niet gedeeld** tussen gsm's.
-- Toegangscode-poort (`ACCESS_CODE = "samen"`) is puur client-side; `localStorage.budget_ok` onthoudt login,
-  `localStorage.budget_profile` het actieve profiel.
+  per maand (van `start_date`, max 24 maanden terug) een transactie met `recurring_id`, **enkel t.e.m. vandaag**
+  en enkel na `generated_until` (dat daarna wordt bijgewerkt). Zo komen verwijderde/verplaatste transacties
+  niet terug. De unieke index `(recurring_id, date)` + `upsert … ignoreDuplicates` vangt races tussen gsm's op.
+  Pauzeren = `active=false`; bij heractiveren zet de app `generated_until` op vandaag (geen inhaalmaanden).
+- **Notities** staan in `budget_notes`. Oude lokale notities (`localStorage.budget_notes_<profileId>`) worden
+  bij het laden één keer naar Supabase overgezet.
+- **Inloggen:** Supabase Auth, e-mail + wachtwoord (`signInWithPassword`); supabase-js bewaart de sessie.
+  Accounts maak je in het Supabase-dashboard. `localStorage.budget_profile` onthoudt het actieve profiel.
 
 ## Tabs / schermen
 Budget (maandsaldo, in/uit-donuts, transactielijst) · Sparen (potten + notities) · Overzicht (donut per categorie → detail) ·
 Profielen (hernoemen, actief kiezen, Vaste kosten beheren, uitloggen) · FAB "+" → `AddSheet` (IN / UIT / SPAREN).
 
 ## Bekende aandachtspunten / mogelijke volgende stappen
-1. **Beveiliging:** anon key + `using (true)`-policies ⇒ iedereen die de key uit de paginabron haalt kan alles lezen/wijzigen.
-   Betere optie: Supabase Auth (magic link voor 2 e-mailadressen) + RLS op `auth.uid()` of een allowlist.
-2. **Notities naar Supabase** verplaatsen (nieuwe tabel `budget_notes`) zodat ze gedeeld en live zijn.
-3. **Vaste kosten** worden ook voor de huidige maand aangemaakt als de dag nog niet voorbij is (toekomstige datum).
-   Overweeg: enkel t.e.m. vandaag, of tonen als "gepland".
+1. **Beveiliging:** de app logt in via Supabase Auth, maar zolang `supabase/pending/rls_lockdown.sql` niet is
+   uitgevoerd staan de policies nog open (`using (true)`). Na uitvoeren: "Allow new users to sign up" uitzetten.
+2. ~~Notities naar Supabase~~ — gedaan (`budget_notes`).
+3. ~~Vaste kosten in de toekomst / komen terug na verwijderen~~ — gedaan (`generated_until`).
 4. **Performance:** Babel in de browser maakt de eerste load traag. Migratie naar Vite + React (build naar `dist/`,
    GitHub Actions → Pages) is de logische stap als de app verder groeit. Tot dan: niets opsplitsen dat de no-build setup breekt.
 5. `window.confirm` wordt gebruikt voor verwijderen — werkt, maar past niet in de stijl.
