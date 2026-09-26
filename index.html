@@ -469,12 +469,12 @@ function AddSheet({profileId, editTx, savings, onCreatePot, preset, onClose, onS
     else if(!catKey){ setShowCat(true); return; }
     setBusy(true);
     const a=Math.round(num*100)/100;
-    let payload;
+    let payload; const owner=editTx? editTx.profile_id : profileId; // bewerken laat de transactie bij haar eigen profiel
     if(type==='sparen'){
       const pn=pot? pot.name : '';
-      payload={ profile_id:profileId, type:(dir==='storten'?'uit':'in'), amount:a, category:'sparen', description: desc.trim() || ((dir==='storten'?'→ ':'← ')+pn), date:dateStr, savings_id:savId };
+      payload={ profile_id:owner, type:(dir==='storten'?'uit':'in'), amount:a, category:'sparen', description: desc.trim() || ((dir==='storten'?'→ ':'← ')+pn), date:dateStr, savings_id:savId };
     } else {
-      payload={ profile_id:profileId, type, amount:a, category:catKey, description: desc.trim()||null, date:dateStr, savings_id:null };
+      payload={ profile_id:owner, type, amount:a, category:catKey, description: desc.trim()||null, date:dateStr, savings_id:null };
     }
     let res = editTx ? await db.from('budget_transactions').update(payload).eq('id',editTx.id) : await db.from('budget_transactions').insert(payload);
     setBusy(false);
@@ -555,13 +555,13 @@ function AddSheet({profileId, editTx, savings, onCreatePot, preset, onClose, onS
 
 /* ============ BUDGET TAB ============ */
 // potView: bekeken vanuit de spaarrekening → storten (type 'uit') is + voor de pot, opnemen is −.
-function TxRow({tx, onClick, potView}){
+function TxRow({tx, onClick, potView, who}){
   const c=catOf(tx.category);
   const plus = potView ? tx.type==='uit' : tx.type==='in';
   return <div className="tx" onClick={onClick}>
     <div className="ic" style={{background:c.color}}><Icon name={c.icon} size={22}/></div>
     <div className="mid">
-      <div className="cat">{c.label}</div>
+      <div className="cat">{who || c.label}</div>
       {tx.description && <div className="desc">{tx.description}</div>}
     </div>
     <div className="right">
@@ -707,18 +707,19 @@ function ProfielenTab({profiles, activeId, setActive, onRename, onOpenRecurring,
 }
 
 /* ============ SPAREN TAB ============ */
-function SparenTab({savings, txAll, notes, onCreate, onRename, onDelete, onQuick, onOpenTx, onAddNote, onToggleNote, onDeleteNote}){
+function SparenTab({savings, potTx, profiles, notes, onCreate, onRename, onDelete, onQuick, onOpenTx, onAddNote, onToggleNote, onDeleteNote}){
   const [detail,setDetail]=useState(null);
   const [modal,setModal]=useState(null);
   const [noteOpen,setNoteOpen]=useState(false);
   useEffect(()=>{ if(detail && !savings.some(p=>p.id===detail)) setDetail(null); },[savings,detail]);
-  function balOf(id){ let b=0; txAll.forEach(t=>{ if(t.savings_id===id) b += (t.type==='uit'?Number(t.amount):-Number(t.amount)); }); return b; }
+  const profName=id=>{ const p=(profiles||[]).find(x=>x.id===id); return p?p.name:''; };
+  function balOf(id){ let b=0; potTx.forEach(t=>{ if(t.savings_id===id) b += (t.type==='uit'?Number(t.amount):-Number(t.amount)); }); return b; }
   const total=savings.reduce((s,p)=>s+balOf(p.id),0);
 
   if(detail){
     const pot=savings.find(p=>p.id===detail);
     if(!pot) return null;
-    const items=txAll.filter(t=>t.savings_id===detail).sort((a,b)=> a.date!==b.date?(a.date<b.date?1:-1):(a.created_at<b.created_at?1:-1));
+    const items=potTx.filter(t=>t.savings_id===detail).sort((a,b)=> a.date!==b.date?(a.date<b.date?1:-1):(a.created_at<b.created_at?1:-1));
     return <div>
       <div className="hdr"><div className="hdr-row">
         <button className="icon-btn" onClick={()=>setDetail(null)}><Icon name="aleft"/></button>
@@ -738,7 +739,7 @@ function SparenTab({savings, txAll, notes, onCreate, onRename, onDelete, onQuick
         <div className="panel" style={{marginTop:14}}>
           <div className="panel-h"><h3>Transacties</h3><span className="count">({items.length})</span></div>
           {items.length===0? <div className="empty">Nog geen stortingen of opnames.</div>
-            : items.map(t=><TxRow key={t.id} tx={t} potView onClick={()=>onOpenTx(t)} />)}
+            : items.map(t=><TxRow key={t.id} tx={t} potView who={profName(t.profile_id)} onClick={()=>onOpenTx(t)} />)}
         </div>
       </div>
       {modal&&modal.mode==='rename' && <NameModal title="Hernoem spaarrekening" initial={modal.pot.name} onSave={nm=>{ onRename(modal.pot.id,nm); setModal(null); }} onClose={()=>setModal(null)} />}
@@ -749,7 +750,7 @@ function SparenTab({savings, txAll, notes, onCreate, onRename, onDelete, onQuick
     <div className="hdr"><div className="hdr-row"><div style={{width:40}}/><div className="hdr-title">Sparen</div><div style={{width:40}}/></div></div>
     <div className="balance pos">€ {fmtNum(total)}</div>
     <div className="wrap">
-      <div className="note"><h4>Spaarrekeningen</h4><p>Maak er zoveel als je wil en geef ze een eigen naam. Storten of opnemen doe je hier of via + (SPAREN).</p></div>
+      <div className="note"><h4>Spaarrekeningen</h4><p>Gedeeld over alle profielen: vanuit elk profiel kan je op elke spaarrekening storten. Het bedrag gaat af van (of komt op) het actieve profiel.</p></div>
       {savings.map(p=>(
         <div className="pf" key={p.id} onClick={()=>setDetail(p.id)} style={{cursor:'pointer'}}>
           <div className="av"><Icon name="piggy" size={22}/></div>
@@ -931,6 +932,7 @@ function App(){
   const [activeId,setActiveId]=useState(localStorage.getItem('budget_profile')||null);
   const [txAll,setTxAll]=useState([]);
   const [savings,setSavings]=useState([]);
+  const [potTx,setPotTx]=useState([]);
   const [recurring,setRecurring]=useState([]);
   const [notes,setNotes]=useState([]);
   const [tab,setTab]=useState('budget');
@@ -948,15 +950,18 @@ function App(){
     const {data}=await db.from('budget_profiles').select('*').order('position');
     if(data){ setProfiles(data); setActiveId(prev=>{ const keep=prev&&data.some(p=>p.id===prev); return keep?prev:(data[0]?data[0].id:null); }); }
   },[]);
-  const loadSavings=useCallback(async(pid)=>{ const {data}=await db.from('budget_savings').select('*').eq('profile_id',pid).order('position'); setSavings(data||[]); },[]);
+  // Spaarrekeningen zijn gedeeld over alle profielen: elk profiel kan op elke pot storten.
+  // potTx = alle spaartransacties van alle profielen (voor saldo en detail van de potten).
+  const loadSavings=useCallback(async()=>{ const {data}=await db.from('budget_savings').select('*').order('position').order('created_at'); setSavings(data||[]); },[]);
   const loadData=useCallback(async(pid)=>{
-    if(!pid){ setTxAll([]); setSavings([]); setRecurring([]); return; }
-    const [txR,svR,rcR]=await Promise.all([
+    if(!pid){ setTxAll([]); setSavings([]); setPotTx([]); setRecurring([]); return; }
+    const [txR,svR,ptR,rcR]=await Promise.all([
       db.from('budget_transactions').select('*').eq('profile_id',pid),
-      db.from('budget_savings').select('*').eq('profile_id',pid).order('position'),
+      db.from('budget_savings').select('*').order('position').order('created_at'),
+      db.from('budget_transactions').select('*').not('savings_id','is',null),
       db.from('budget_recurring').select('*').eq('profile_id',pid).order('created_at'),
     ]);
-    let tx=txR.data||[]; setSavings(svR.data||[]); setRecurring(rcR.data||[]);
+    let tx=txR.data||[]; setSavings(svR.data||[]); setPotTx(ptR.data||[]); setRecurring(rcR.data||[]);
     const did=await materializeRecurring(pid, rcR.data||[]);
     if(did){ const r2=await db.from('budget_transactions').select('*').eq('profile_id',pid); tx=r2.data||tx; }
     setTxAll(tx);
@@ -996,8 +1001,8 @@ function App(){
   async function toggleNote(id){ const n=notes.find(x=>x.id===id); if(!n) return; setNotes(notes.map(x=>x.id===id?{...x,done:!x.done}:x)); await db.from('budget_notes').update({done:!n.done}).eq('id',id); }
   async function deleteNote(id){ setNotes(notes.filter(x=>x.id!==id)); await db.from('budget_notes').delete().eq('id',id); }
   function openStat(type){ setOvz({...ovz, y:ym.y, m:ym.m, type, cat:null}); setTab('overzicht'); }
-  async function createPot(name){ const {data}=await db.from('budget_savings').insert({profile_id:activeId,name,position:savings.length}).select().single(); if(activeId) loadSavings(activeId); return data?data.id:null; }
-  async function renamePot(id,name){ await db.from('budget_savings').update({name}).eq('id',id); if(activeId) loadSavings(activeId); }
+  async function createPot(name){ const {data}=await db.from('budget_savings').insert({profile_id:activeId,name,position:savings.length}).select().single(); loadSavings(); return data?data.id:null; }
+  async function renamePot(id,name){ await db.from('budget_savings').update({name}).eq('id',id); loadSavings(); }
   async function deletePot(id){ await db.from('budget_savings').delete().eq('id',id); if(activeId) loadData(activeId); }
   function openAdd(preset){ setEditTx(null); setAddPreset(preset||null); setAddOpen(true); }
   function quickSpaar(potId,dir){ openAdd({type:'sparen',dir,savId:potId}); }
@@ -1008,7 +1013,7 @@ function App(){
   return <div className="app">
     {tab==='budget' && <BudgetTab txAll={txAll} y={ym.y} m={ym.m}
       setYM={(y,m)=>setYm({y,m})} onOpenTx={openTx} onOpenStat={openStat} />}
-    {tab==='sparen' && <SparenTab savings={savings} txAll={txAll} notes={notes} onCreate={createPot} onRename={renamePot} onDelete={deletePot} onQuick={quickSpaar} onOpenTx={openTx} onAddNote={addNote} onToggleNote={toggleNote} onDeleteNote={deleteNote} />}
+    {tab==='sparen' && <SparenTab savings={savings} potTx={potTx} profiles={profiles} notes={notes} onCreate={createPot} onRename={renamePot} onDelete={deletePot} onQuick={quickSpaar} onOpenTx={openTx} onAddNote={addNote} onToggleNote={toggleNote} onDeleteNote={deleteNote} />}
     {tab==='overzicht' && <OverzichtTab txAll={txAll} state={ovz} setState={setOvz} onOpenTx={openTx} />}
     {tab==='profielen' && <ProfielenTab profiles={profiles} activeId={activeId} setActive={setActiveId} onRename={renameProfile} onOpenRecurring={()=>setScreen('vastekosten')} onLogout={()=>{ localStorage.removeItem('budget_ok'); setOk(false); }} />}
 

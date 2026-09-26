@@ -24,7 +24,8 @@ Communiceer met Ejnar in het Nederlands, kort en actiegericht.
 - Volledig schema: `supabase/schema.sql`. Tabellen:
   - `budget_profiles` (id, name, position) — 3 rekeningen: "Gezamenlijk", "Shauni privé", "Rekening 3" (hernoembaar).
   - `budget_transactions` (profile_id, type `in|uit`, amount ≥ 0, category, description, date, savings_id?, recurring_id?)
-  - `budget_savings` (profile_id, name, position) — spaarrekeningen.
+  - `budget_savings` (profile_id, name, position) — spaarrekeningen, **gedeeld over alle profielen** (profile_id = wie ze aanmaakte).
+    Elk profiel kan op elke pot storten; de transactie hoort bij het actieve profiel. Saldo/detail van een pot = alle profielen (`potTx`).
   - `budget_recurring` (profile_id, type, amount, category, description, day 1–31, active, start_date, generated_until) — vaste kosten.
   - `budget_notes` (profile_id, text, amount?, done) — notities op de Sparen-tab (gedeeld, realtime).
 - Realtime staat aan op alle 5 tabellen; de app herlaadt bij elke wijziging (`channel('budget-rt')`).
