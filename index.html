@@ -1048,6 +1048,36 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
     eval(out);
   }catch(e){ showErr(e.message||String(e)); console.error(e); }
 })();
+
+/* Automatische update: iOS houdt een beginscherm-app lang "bevroren" in het geheugen.
+   Telkens de app weer zichtbaar wordt, halen we de nieuwste index.html op (cache:'reload'
+   ververst ook de browsercache) en vergelijken code + stijl. Anders → herladen,
+   maar nooit terwijl een invulscherm (.overlay) open staat. */
+(function(){
+  var cur = document.getElementById('app-src').textContent + document.querySelector('style').textContent;
+  var busy = false, pending = false;
+  function tryReload(){
+    if(document.querySelector('.overlay')) return;  // gebruiker is iets aan het invullen
+    try{ var last=+sessionStorage.getItem('budget_upd')||0; if(Date.now()-last<60000) return; sessionStorage.setItem('budget_upd', String(Date.now())); }catch(e){}
+    location.reload();
+  }
+  function check(){
+    if(pending){ tryReload(); return; }
+    if(busy || document.visibilityState!=='visible') return;
+    busy = true;
+    fetch(location.pathname, {cache:'reload'}).then(function(r){ return r.ok ? r.text() : null; }).then(function(html){
+      if(!html) return;
+      var d = new DOMParser().parseFromString(html, 'text/html');
+      var src = d.getElementById('app-src'), st = d.querySelector('style');
+      if(src && st && src.textContent + st.textContent !== cur){ pending = true; tryReload(); }
+    }).catch(function(){}).then(function(){ busy = false; });
+  }
+  document.addEventListener('visibilitychange', check);
+  window.addEventListener('pageshow', check);
+  window.addEventListener('focus', check);
+  setInterval(check, 5*60*1000);
+  setTimeout(check, 3000);
+})();
 </script>
 </body>
 </html>

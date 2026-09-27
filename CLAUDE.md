@@ -66,4 +66,6 @@ Profielen (hernoemen, actief kiezen, Vaste kosten beheren, uitloggen) · FAB "+"
 ## Werkafspraken
 - Houd de UI in het Nederlands en in de bestaande stijl (paarse header met ronde onderkant, witte kaarten, mint "OPSLAAN").
 - Kleine, gerichte wijzigingen; toon wat je veranderd hebt vóór je pusht.
+- De app herlaadt zichzelf bij een nieuwe versie (check onderaan index.html: vergelijkt `#app-src` + `<style>`
+  met de live versie telkens de app zichtbaar wordt; niet als een `.overlay` open staat).
 - Controleer na elke wijziging dat de pagina nog laadt (Babel-fouten tonen "Er ging iets mis" in rood).
