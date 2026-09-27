@@ -170,7 +170,7 @@
   /* Profielen */
   .pf{background:#fff;border-radius:16px;margin-top:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(60,50,120,.04);}
   .pf .av{width:46px;height:46px;border-radius:14px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex:0 0 auto;}
-  .pf input{border:none;outline:none;font-size:17px;font-weight:700;flex:1;background:transparent;}
+  .pf input{border:none;outline:none;font-size:17px;font-weight:700;flex:1;min-width:0;background:transparent;}
   .pf .pick{color:var(--mint-d);font-weight:800;font-size:14px;}
   .pf.active{outline:2px solid var(--mint);}
 
@@ -687,7 +687,6 @@ function ProfielenTab({profiles, activeId, setActive, onRename, onOpenRecurring,
   return <div>
     <div className="hdr"><div className="hdr-row"><div style={{width:40}}/><div className="hdr-title">Profielen</div><div style={{width:40}}/></div></div>
     <div className="wrap">
-      <div className="note"><h4>Aparte rekeningen</h4><p>Elke rekening houdt eigen inkomsten, uitgaven en spaarrekeningen bij. Tik om actief te maken. Wijzigingen zien jullie allebei live.</p></div>
       {profiles.map(p=>(
         <div className={"pf"+(p.id===activeId?' active':'')} key={p.id}>
           <div className="av" onClick={()=>setActive(p.id)}>{(names[p.id]||'?').trim().charAt(0).toUpperCase()||'?'}</div>
@@ -750,7 +749,6 @@ function SparenTab({savings, potTx, profiles, notes, onCreate, onRename, onDelet
     <div className="hdr"><div className="hdr-row"><div style={{width:40}}/><div className="hdr-title">Sparen</div><div style={{width:40}}/></div></div>
     <div className="balance pos">€ {fmtNum(total)}</div>
     <div className="wrap">
-      <div className="note"><h4>Spaarrekeningen</h4><p>Gedeeld over alle profielen: vanuit elk profiel kan je op elke spaarrekening storten. Het bedrag gaat af van (of komt op) het actieve profiel.</p></div>
       {savings.slice().sort((a,b)=>balOf(b.id)-balOf(a.id)).map(p=>(
         <div className="pf" key={p.id} onClick={()=>setDetail(p.id)} style={{cursor:'pointer'}}>
           <div className="av"><Icon name="piggy" size={22}/></div>
