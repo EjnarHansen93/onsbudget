@@ -27,7 +27,9 @@ Communiceer met Ejnar in het Nederlands, kort en actiegericht.
   - `budget_savings` (profile_id, name, position) — spaarrekeningen, **gedeeld over alle profielen** (profile_id = wie ze aanmaakte).
     Elk profiel kan op elke pot storten; de transactie hoort bij het actieve profiel. Saldo/detail van een pot = alle profielen (`potTx`).
   - `budget_recurring` (profile_id, type, amount, category, description, day 1–31, active, start_date, generated_until) — vaste kosten.
-  - `budget_notes` (profile_id, text, amount?, done) — notities op de Sparen-tab (gedeeld, realtime).
+  - `budget_notes` (profile_id, text, amount?, paid, done) — notities op de Sparen-tab (gedeeld, realtime).
+    `amount` = totaalbedrag, `paid` = al teruggestort (optellen via "+ Toevoegen", geen datum/geschiedenis — bewuste keuze).
+    `paid >= amount` ⇒ notitie wordt automatisch afgevinkt. Tik op notitie = bewerken (`NoteModal`).
 - Realtime staat aan op alle 5 tabellen; de app herlaadt bij elke wijziging (`channel('budget-rt')`).
 - **Schemawijzigingen** altijd als migratie (Supabase MCP `apply_migration` of CLI), en `supabase/schema.sql` bijwerken.
   Nooit data wissen zonder expliciete toestemming — er staat echte data in.

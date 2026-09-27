@@ -51,7 +51,9 @@ create table if not exists public.budget_notes (
   text        text not null,
   amount      numeric check (amount is null or amount >= 0),
   done        boolean not null default false,
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  -- hoeveel van amount al teruggestort/betaald is (enkel totaal, geen geschiedenis)
+  paid        numeric not null default 0 check (paid >= 0)
 );
 create index if not exists idx_budget_notes_profile on public.budget_notes (profile_id, created_at);
 
