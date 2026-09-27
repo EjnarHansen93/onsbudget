@@ -805,8 +805,8 @@ function SparenTab({savings, potTx, profiles, notes, onCreate, onRename, onDelet
           <h3>Notities</h3>
           <span className="note-badge">niet meegerekend</span>
         </div>
-        {(!notes||notes.length===0) && <div className="empty" style={{padding:'20px 16px'}}>Nog geen notities. Handig om bij te houden wat je nog terugkrijgt of opzij zet — zonder dat het je saldo verandert.</div>}
-        {(notes||[]).map(n=>{
+        {!(notes||[]).some(n=> !(n.amount!=null && Number(n.paid||0)>=Number(n.amount))) && <div className="empty" style={{padding:'20px 16px'}}>Nog geen notities. Handig om bij te houden wat je nog terugkrijgt of opzij zet — zonder dat het je saldo verandert.</div>}
+        {(notes||[]).filter(n=> !(n.amount!=null && Number(n.paid||0)>=Number(n.amount))).map(n=>{ /* volledig teruggestort → verborgen (blijft in de database) */
           const amt=n.amount!=null? Number(n.amount) : null, paid=Number(n.paid||0);
           const prog = amt!=null && paid>0;
           return <div className="note-wrap" key={n.id}>
