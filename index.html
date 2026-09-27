@@ -751,7 +751,7 @@ function SparenTab({savings, potTx, profiles, notes, onCreate, onRename, onDelet
     <div className="balance pos">€ {fmtNum(total)}</div>
     <div className="wrap">
       <div className="note"><h4>Spaarrekeningen</h4><p>Gedeeld over alle profielen: vanuit elk profiel kan je op elke spaarrekening storten. Het bedrag gaat af van (of komt op) het actieve profiel.</p></div>
-      {savings.map(p=>(
+      {savings.slice().sort((a,b)=>balOf(b.id)-balOf(a.id)).map(p=>(
         <div className="pf" key={p.id} onClick={()=>setDetail(p.id)} style={{cursor:'pointer'}}>
           <div className="av"><Icon name="piggy" size={22}/></div>
           <div style={{flex:1,fontWeight:700,fontSize:16}}>{p.name}</div>
